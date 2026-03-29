@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>dotdash.fun — Learn Morse Code</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff9f0;--accent:#6c5ce7;--accent2:#ff6b6b;--accent3:#00b894;--accent4:#fdcb6e;--accent5:#0984e3;--text:#2d2d2d;--muted:#888;--panel:#fff;--border:#ede8ff;--radius:20px;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;overflow-x:hidden;}
+button,a{touch-action:manipulation;}
+.header{position:relative;text-align:center;padding:48px 20px 36px;overflow:hidden;}
+.header-bg{position:absolute;inset:0;background:linear-gradient(135deg,#ede9ff 0%,#fff0fa 40%,#e8fff5 100%);z-index:0;}
+.header-dots{position:absolute;inset:0;z-index:0;background-image:radial-gradient(circle,#c3b1ff 1.5px,transparent 1.5px);background-size:28px 28px;opacity:.35;}
+.header-content{position:relative;z-index:1;}
+.logo-morse{font-size:13px;font-weight:800;letter-spacing:6px;color:var(--accent);opacity:.7;margin-bottom:10px;animation:fadeDown .5s ease both;}
+.logo{font-family:'Fredoka One',cursive;font-size:clamp(52px,12vw,90px);line-height:1;margin-bottom:10px;animation:fadeDown .5s .1s ease both;}
+.logo .dot{color:#ff6b6b;}.logo .dash{color:var(--accent);}.logo .fun{color:var(--accent3);}
+.tagline{font-size:clamp(14px,3.5vw,18px);font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:24px;animation:fadeDown .5s .2s ease both;}
+.visitor-badge{display:inline-flex;align-items:center;gap:8px;background:white;border:2.5px solid var(--border);border-radius:50px;padding:8px 20px;font-size:14px;font-weight:700;color:var(--accent);box-shadow:0 4px 16px rgba(108,92,231,.12);animation:fadeDown .5s .3s ease both;}
+.share-site-wrap{text-align:center;padding:0 20px 32px;}
+.share-site-btn{display:inline-flex;align-items:center;gap:10px;background:linear-gradient(135deg,var(--accent),#a78bfa);color:white;border:none;border-radius:50px;padding:14px 30px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 6px 24px rgba(108,92,231,.35);transition:transform .15s,box-shadow .15s;}
+.share-site-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(108,92,231,.4);}
+.share-site-btn:active{transform:scale(.97);}
+.share-toast{display:none;margin-top:10px;font-size:13px;font-weight:700;color:var(--accent3);}
+.section-title{text-align:center;padding:0 20px 8px;}
+.section-title h2{font-family:'Fredoka One',cursive;font-size:clamp(26px,6vw,38px);color:var(--text);margin-bottom:4px;}
+.section-title p{font-size:14px;font-weight:600;color:var(--muted);}
+.games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;max-width:960px;margin:20px auto 0;padding:0 16px 16px;}
+.game-card{background:var(--panel);border-radius:var(--radius);border:2.5px solid #ede8ff;padding:24px 20px 18px;display:flex;flex-direction:column;gap:10px;transition:transform .18s,box-shadow .18s,border-color .18s;box-shadow:0 4px 16px rgba(0,0,0,.05);position:relative;overflow:hidden;}
+.game-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;border-radius:var(--radius) var(--radius) 0 0;}
+.game-card:hover{transform:translateY(-4px);box-shadow:0 12px 36px rgba(108,92,231,.15);border-color:var(--accent);}
+.card-top{display:flex;align-items:flex-start;gap:14px;}
+.card-emoji{font-size:44px;line-height:1;flex-shrink:0;display:inline-block;}
+.card-info{flex:1;}
+.card-name{font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);margin-bottom:4px;line-height:1.2;}
+.card-desc{font-size:13px;font-weight:600;color:var(--muted);line-height:1.5;}
+.card-actions{display:flex;gap:8px;margin-top:4px;}
+.play-btn{flex:1;display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 14px;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;color:white;cursor:pointer;text-decoration:none;transition:transform .12s,box-shadow .12s;box-shadow:0 4px 14px rgba(0,0,0,.15);}
+.play-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(0,0,0,.2);}
+.play-btn:active{transform:scale(.97);}
+.share-btn{display:flex;align-items:center;justify-content:center;padding:11px 14px;border:2px solid #ede8ff;border-radius:14px;background:var(--bg);font-size:16px;cursor:pointer;transition:background .12s,border-color .12s,transform .12s;flex-shrink:0;}
+.share-btn:hover{background:#ede9ff;border-color:var(--accent);transform:scale(1.05);}
+.share-btn:active{transform:scale(.95);}
+.share-btn.copied{background:#d1fae5;border-color:var(--accent3);}
+.card-c1::before{background:#ff6b6b;}.card-c2::before{background:var(--accent);}.card-c3::before{background:var(--accent3);}.card-c4::before{background:var(--accent4);}.card-c5::before{background:var(--accent5);}.card-c6::before{background:#fd79a8;}.card-c7::before{background:#a29bfe;}.card-c8::before{background:#00cec9;}
+.btn-c1{background:linear-gradient(135deg,#ff6b6b,#ee5a24);}.btn-c2{background:linear-gradient(135deg,var(--accent),#a78bfa);}.btn-c3{background:linear-gradient(135deg,var(--accent3),#00cec9);}.btn-c4{background:linear-gradient(135deg,#e17055,var(--accent4));}.btn-c5{background:linear-gradient(135deg,var(--accent5),#74b9ff);}.btn-c6{background:linear-gradient(135deg,#fd79a8,#e84393);}.btn-c7{background:linear-gradient(135deg,#a29bfe,var(--accent));}.btn-c8{background:linear-gradient(135deg,#00cec9,#00b894);}
+.banners{max-width:960px;margin:8px auto 0;padding:0 16px;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:540px){.banners{grid-template-columns:1fr;}}
+.banner{display:flex;align-items:center;gap:14px;padding:20px;border-radius:var(--radius);text-decoration:none;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 16px rgba(0,0,0,.06);}
+.banner:hover{transform:translateY(-3px);box-shadow:0 10px 28px rgba(0,0,0,.12);}
+.banner-tutorial{background:linear-gradient(135deg,#ede9ff,#ddd5ff);border:2.5px solid #c3b1ff;}
+.banner-about{background:linear-gradient(135deg,#e8fff5,#c8f7e6);border:2.5px solid #a3e6c8;}
+.banner-emoji{font-size:36px;}
+.banner-title{font-family:'Fredoka One',cursive;font-size:18px;color:var(--text);margin-bottom:2px;}
+.banner-desc{font-size:12px;font-weight:600;color:var(--muted);}
+.footer{text-align:center;padding:32px 20px 40px;font-size:12px;font-weight:600;color:var(--muted);letter-spacing:1px;}
+.footer .heart{color:var(--accent2);}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes wiggle{0%,80%,100%{transform:rotate(0deg)}85%{transform:rotate(-8deg)}90%{transform:rotate(8deg)}95%{transform:rotate(-4deg)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+.card-emoji{animation:wiggle 3s ease-in-out infinite;}
+.game-card:hover .card-emoji{animation:pop .4s ease;}
+.game-card:nth-child(1){animation:fadeDown .4s .05s ease both;}
+.game-card:nth-child(2){animation:fadeDown .4s .10s ease both;}
+.game-card:nth-child(3){animation:fadeDown .4s .15s ease both;}
+.game-card:nth-child(4){animation:fadeDown .4s .20s ease both;}
+.game-card:nth-child(5){animation:fadeDown .4s .25s ease both;}
+.game-card:nth-child(6){animation:fadeDown .4s .30s ease both;}
+.game-card:nth-child(7){animation:fadeDown .4s .35s ease both;}
+.game-card:nth-child(1){animation:fadeDown .4s .05s ease both;}
+.game-card:nth-child(2){animation:fadeDown .4s .10s ease both;}
+.game-card:nth-child(3){animation:fadeDown .4s .15s ease both;}
+.game-card:nth-child(4){animation:fadeDown .4s .20s ease both;}
+.game-card:nth-child(5){animation:fadeDown .4s .25s ease both;}
+/* Section dividers */
+.level-divider{max-width:960px;margin:8px auto 0;padding:0 16px;}
+.level-heading{display:flex;align-items:center;gap:12px;margin-bottom:4px;}
+.level-pill{font-family:'Fredoka One',cursive;font-size:14px;padding:5px 18px;border-radius:50px;letter-spacing:1px;}
+.pill-beginner{background:#d1fae5;color:#059669;}
+.pill-advanced{background:#ede9ff;color:var(--accent);}
+.level-line{flex:1;height:2px;border-radius:2px;}
+.line-beginner{background:linear-gradient(90deg,#d1fae5,transparent);}
+.line-advanced{background:linear-gradient(90deg,#ede9ff,transparent);}
+.level-sub{font-size:12px;font-weight:700;color:var(--muted);padding-left:4px;margin-bottom:12px;}
+/* Coming soon cards */
+.coming-soon-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;max-width:960px;margin:0 auto;padding:0 16px 16px;}
+.cs-card{background:var(--panel);border-radius:var(--radius);border:2.5px dashed var(--border);padding:24px 20px;display:flex;align-items:center;gap:16px;opacity:.7;}
+.cs-emoji{font-size:36px;flex-shrink:0;}
+.cs-name{font-family:'Fredoka One',cursive;font-size:18px;color:var(--text);margin-bottom:3px;}
+.cs-desc{font-size:12px;font-weight:600;color:var(--muted);}
+.cs-badge{display:inline-block;margin-top:6px;font-size:10px;font-weight:800;letter-spacing:1px;background:#fef3c7;color:#d97706;border-radius:20px;padding:2px 12px;}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-bg"></div>
+  <div class="header-dots"></div>
+  <div class="header-content">
+    <div class="logo-morse">· · ·  — · · ·</div>
+    <div class="logo"><span class="dot">dot</span><span class="dash">dash</span><span class="fun">.fun</span></div>
+    <div class="tagline">Learn · Play · Master Morse Code</div>
+    <div class="visitor-badge"><span>🌍</span><span id="visitorText">Loading visitors...</span></div>
+  </div>
+</div>
+<div class="share-site-wrap">
+  <button class="share-site-btn" onclick="shareSite()"><span>📣</span> Share dotdash.fun with a friend!</button>
+  <div class="share-toast" id="siteShareToast">✓ Copied to clipboard!</div>
+</div>
+<div class="section-title">
+  <h2>🎮 Choose Your Game!</h2>
+  <p>Pick a challenge and start learning morse code</p>
+</div>
+
+<!-- BEGINNER -->
+<div class="level-divider">
+  <div class="level-heading">
+    <span class="level-pill pill-beginner">🌱 Beginner</span>
+    <div class="level-line line-beginner"></div>
+  </div>
+  <div class="level-sub">New to morse? Start here — no keying required for most!</div>
+</div>
+<div class="games-grid">
+  <div class="game-card card-c1">
+    <div class="card-top"><span class="card-emoji">🔡</span><div class="card-info"><div class="card-name">Decode It</div><div class="card-desc">See morse code, guess the letter! Perfect for beginners.</div></div></div>
+    <div class="card-actions"><a class="play-btn btn-c1" href="decode-it.html">▶ Play Now</a><button class="share-btn" onclick="shareGame('Decode It','decode-it.html',this)">📤</button></div>
+  </div>
+  <div class="game-card card-c2">
+    <div class="card-top"><span class="card-emoji">📡</span><div class="card-info"><div class="card-name">Encode It</div><div class="card-desc">See a letter, find the morse code! Can you crack it?</div></div></div>
+    <div class="card-actions"><a class="play-btn btn-c2" href="encode-it.html">▶ Play Now</a><button class="share-btn" onclick="shareGame('Encode It','encode-it.html',this)">📤</button></div>
+  </div>
+  <div class="game-card card-c6">
+    <div class="card-top"><span class="card-emoji">🐷</span><div class="card-info"><div class="card-name">Is It Ham?</div><div class="card-desc">Key YES or NO in morse — is it ham or not?!</div></div></div>
+    <div class="card-actions"><a class="play-btn btn-c6" href="is-it-ham.html">▶ Play Now</a><button class="share-btn" onclick="shareGame('Is It Ham?','is-it-ham.html',this)">📤</button></div>
+  </div>
+  <div class="game-card card-c8">
+    <div class="card-top"><span class="card-emoji">🚀</span><div class="card-info"><div class="card-name">Morse Blaster</div><div class="card-desc">Letters fall from the sky — key them before they stack up!</div></div></div>
+    <div class="card-actions"><a class="play-btn btn-c8" href="morse-blaster.html">▶ Play Now</a><button class="share-btn" onclick="shareGame('Morse Blaster','morse-blaster.html',this)">📤</button></div>
+  </div>
+  <div class="game-card card-c5">
+    <div class="card-top"><span class="card-emoji">🚁</span><div class="card-info"><div class="card-name">Oil Spill!</div><div class="card-desc">Stop the oil cans from spilling into the ocean! 15 levels!</div></div></div>
+    <div class="card-actions"><a class="play-btn btn-c5" href="oil-spill.html">▶ Play Now</a><button class="share-btn" onclick="shareGame('Oil Spill!','oil-spill.html',this)">📤</button></div>
+  </div>
+</div>
+
+<!-- ADVANCED -->
+<div class="level-divider" style="margin-top:12px;">
+  <div class="level-heading">
+    <span class="level-pill pill-advanced">🔥 Advanced</span>
+    <div class="level-line line-advanced"></div>
+  </div>
+  <div class="level-sub">Ready to level up? These need real morse keying skills!</div>
+</div>
+<div class="games-grid">
+  <div class="game-card card-c4">
+    <div class="card-top"><span class="card-emoji">⚡</span><div class="card-info"><div class="card-name">Speed Challenge</div><div class="card-desc">How fast can you key the whole alphabet? Beat your record!</div></div></div>
+    <div class="card-actions"><a class="play-btn btn-c4" href="speed-challenge.html">▶ Play Now</a><button class="share-btn" onclick="shareGame('Speed Challenge','speed-challenge.html',this)">📤</button></div>
+  </div>
+  <div class="game-card card-c7">
+    <div class="card-top"><span class="card-emoji">👂</span><div class="card-info"><div class="card-name">Decode By Ear</div><div class="card-desc">Listen to morse and figure out the secret message!</div></div></div>
+    <div class="card-actions"><a class="play-btn btn-c7" href="decode-by-ear.html">▶ Play Now</a><button class="share-btn" onclick="shareGame('Decode By Ear','decode-by-ear.html',this)">📤</button></div>
+  </div>
+  <div class="game-card card-c3">
+    <div class="card-top"><span class="card-emoji">🔍</span><div class="card-info"><div class="card-name">Morse Word Search</div><div class="card-desc">Find hidden words in a morse code grid! Choose your topic!</div></div></div>
+    <div class="card-actions"><a class="play-btn btn-c3" href="word-search.html">▶ Play Now</a><button class="share-btn" onclick="shareGame('Morse Word Search','word-search.html',this)">📤</button></div>
+  </div>
+</div>
+
+<!-- COMING SOON -->
+<div class="level-divider" style="margin-top:12px;">
+  <div class="level-heading">
+    <span class="level-pill" style="background:#fef3c7;color:#d97706;">🚧 Coming Soon</span>
+    <div class="level-line" style="background:linear-gradient(90deg,#fef3c7,transparent);"></div>
+  </div>
+</div>
+<div class="coming-soon-grid">
+  <div class="cs-card">
+    <span class="cs-emoji">📖</span>
+    <div>
+      <div class="cs-name">Full Tutorial</div>
+      <div class="cs-desc">Learn every letter A–Z from scratch with guided practice.</div>
+      <span class="cs-badge">IN THE WORKS</span>
+    </div>
+  </div>
+  <div class="cs-card">
+    <span class="cs-emoji">🤖</span>
+    <div>
+      <div class="cs-name">Morse Bot Chat</div>
+      <div class="cs-desc">Have a real conversation with an AI — entirely in morse code!</div>
+      <span class="cs-badge">IN THE WORKS</span>
+    </div>
+  </div>
+</div>
+
+<div class="banners">
+  <a class="banner banner-about" href="about.html"><span class="banner-emoji">🌐</span><div><div class="banner-title">About Morse Code</div><div class="banner-desc">History &amp; full alphabet reference</div></div></a>
+</div>
+<div class="footer">Made with <span class="heart">♥</span> for curious kids · dotdash.fun · <span style="letter-spacing:3px;color:var(--accent);">· — · —</span></div>
+<script>
+(async function(){
+  try{const r=await fetch('https://api.countapi.xyz/hit/dotdash.fun/visits');const d=await r.json();const n=d.value?d.value.toLocaleString():'???';document.getElementById('visitorText').textContent=n+' kids have visited!';}
+  catch(e){document.getElementById('visitorText').textContent='Lots of kids have visited!';}
+})();
+function shareGame(name,path,btn){
+  const url='https://dotdash.fun/'+path;
+  const emojis={'Decode It':'🔡','Encode It':'📡','Morse Word Search':'🔍','Is It Ham?':'🐷','Oil Spill!':'🚁','Speed Challenge':'⚡','Decode By Ear':'👂','Morse Blaster':'🚀'};
+  const emoji=emojis[name]||'🎮';
+  const text=emoji+' I just played '+name+' on dotdash.fun!\nCan you beat me? Play free at '+url;
+  navigator.clipboard.writeText(text).then(()=>{btn.textContent='✓';btn.classList.add('copied');setTimeout(()=>{btn.textContent='📤';btn.classList.remove('copied');},2000);}).catch(()=>{});
+}
+function shareSite(){
+  const text='🎉 dotdash.fun — the most fun way to learn morse code!\n\nFree games, quizzes, and challenges for kids.\n📡 https://dotdash.fun';
+  navigator.clipboard.writeText(text).then(()=>{const t=document.getElementById('siteShareToast');t.style.display='block';setTimeout(()=>{t.style.display='none';},2500);}).catch(()=>{});
+}
+</script>
+</body>
+</html>
