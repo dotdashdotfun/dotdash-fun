@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Oil Spill! — dotdash.fun</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  :root {
+    --bg:#f4f4f8; --panel:#fff; --border:#e0e0ec;
+    --accent:#6c5ce7; --accent-dim:#ede9fd;
+    --amber:#d97706; --text:#1a1a2e; --muted:#8888aa;
+    --success:#059669; --success-dim:#d1fae5;
+    --error:#dc2626; --error-dim:#fee2e2;
+  }
+
+  html, body { height:100%; background:var(--bg); font-family:'system-ui',sans-serif; overflow:hidden; }
+
+  /* ── SCREENS ── */
+  .screen { display:none; position:fixed; top:0;left:0;right:0;bottom:0; flex-direction:column; align-items:center; justify-content:center; padding:24px 20px; }
+  .screen.active { display:flex; }
+
+  /* ── HOME ── */
+  #home { text-align:center; }
+  .home-emoji { font-size:72px; margin-bottom:16px; }
+  .home-title { font-size:32px; font-weight:800; color:var(--text); margin-bottom:6px; }
+  .home-sub { font-family:"Nunito",sans-serif; font-weight:700; font-size:13px; color:var(--muted); margin-bottom:32px; line-height:1.7; }
+
+  .speed-box { background:var(--panel); border:1px solid var(--border); border-radius:14px; padding:16px 20px; width:100%; max-width:380px; margin-bottom:16px; }
+  .speed-box label { font-size:10px; color:var(--muted); letter-spacing:2px; display:block; margin-bottom:10px; }
+  .speed-row { display:flex; align-items:center; gap:10px; font-size:11px; color:var(--muted); }
+  .speed-row input { flex:1; accent-color:var(--accent); }
+  .speed-val { color:var(--accent); font-weight:700; min-width:48px; text-align:right; }
+
+  .start-btn { background:var(--accent); border:none; color:white; font-size:14px; letter-spacing:2px; padding:18px; border-radius:14px; cursor:pointer; touch-action:manipulation; width:100%; max-width:380px; box-shadow:0 8px 30px rgba(108,92,231,0.3); margin-bottom:12px; }
+  .promo { font-size:11px; color:var(--muted); margin-top:8px; }
+  .promo a { color:var(--accent); text-decoration:none; }
+
+  /* ── GAME ── */
+  #game { padding:0; justify-content:flex-start; background:#0a0e1a; }
+
+  /* HUD */
+  .hud { display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(0,0,0,0.6); border-bottom:1px solid rgba(255,255,255,0.1); width:100%; flex-shrink:0; }
+  .hud-btn { background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; font-size:11px; padding:6px 12px; border-radius:8px; cursor:pointer; touch-action:manipulation; }
+  .hud-title { font-weight:700; color:#fff; font-size:13px; }
+  .hud-stats { margin-left:auto; display:flex; gap:10px; font-size:11px; }
+  .hud-stat { color:#94a3b8; }
+  .hud-stat span { color:#fff; font-weight:700; }
+
+  /* Canvas */
+  #gameCanvas { width:100%; flex:1; display:block; }
+
+  /* Controls */
+  .controls { padding:10px 12px; background:rgba(0,0,0,0.8); border-top:1px solid rgba(255,255,255,0.1); flex-shrink:0; width:100%; }
+  .word-prompt { background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.12); border-radius:10px; padding:8px 14px; text-align:center; margin-bottom:8px; }
+  .word-label { font-size:9px; color:#64748b; letter-spacing:2px; margin-bottom:3px; }
+  .word-text { font-size:20px; font-weight:800; color:#f8fafc; letter-spacing:3px; }
+  .word-typed { font-size:16px; font-weight:700; color:#818cf8; min-height:22px; letter-spacing:3px; }
+  .feedback-row { font-size:12px; color:#34d399; font-weight:700; min-height:18px; text-align:center; margin-bottom:6px; }
+  .key-btn {
+    width:100%; height:58px;
+    background:rgba(108,92,231,0.2); border:2px solid #6c5ce7;
+    border-radius:10px; color:#a78bfa; font-size:13px; letter-spacing:2px;
+    cursor:pointer; touch-action:manipulation;
+    user-select:none; -webkit-user-select:none;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+  }
+  .key-btn.pressed { background:rgba(108,92,231,0.6); color:white; }
+
+  /* ── END ── */
+  #end { text-align:center; }
+  .end-panel { background:var(--panel); border:1px solid var(--border); border-radius:20px; padding:36px 28px; max-width:380px; width:100%; box-shadow:0 8px 40px rgba(0,0,0,0.1); overflow-y:auto; max-height:90vh; }
+  .end-emoji { font-size:60px; display:block; margin-bottom:12px; }
+  .end-title { font-size:24px; font-weight:800; color:var(--text); margin-bottom:6px; }
+  .end-msg { font-size:12px; color:var(--muted); line-height:1.8; margin-bottom:20px; }
+  .end-stats { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; }
+  .end-stat { background:var(--bg); border-radius:10px; padding:14px; }
+  .end-stat-val { font-size:22px; font-weight:800; color:var(--accent); display:block; }
+  .end-stat-label { font-size:10px; color:var(--muted); letter-spacing:1px; }
+
+  .speed-adj { background:var(--bg); border-radius:12px; padding:14px 16px; margin-bottom:18px; }
+  .speed-adj label { font-size:10px; color:var(--muted); letter-spacing:2px; display:block; margin-bottom:8px; }
+  .speed-adj-row { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
+  .speed-adj-row input { flex:1; accent-color:var(--accent); }
+  .speed-adj-val { color:var(--accent); font-weight:700; min-width:44px; text-align:right; }
+
+  .btn-primary { background:var(--accent); border:none; color:white; font-size:13px; letter-spacing:1px; padding:15px; border-radius:12px; cursor:pointer; touch-action:manipulation; width:100%; margin-bottom:8px; }
+  .btn-secondary { background:var(--bg); border:1px solid var(--border); color:var(--muted); font-size:12px; letter-spacing:1px; padding:13px; border-radius:12px; cursor:pointer; touch-action:manipulation; width:100%; margin-bottom:8px; }
+  .end-promo { font-size:11px; color:var(--muted); margin-top:6px; }
+  .end-promo a { color:var(--accent); text-decoration:none; }
+
+/* dotdash.fun shared nav */
+:root{--dd-accent:#6c5ce7;--dd-accent2:#ff6b6b;--dd-accent3:#00b894;--dd-border:#ede8ff;--dd-bg:#fff9f0;}
+.dd-nav{display:flex;align-items:center;gap:12px;padding:12px 20px;background:white;border-bottom:3px solid var(--dd-border);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(108,92,231,.08);}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--dd-bg);border:2.5px solid var(--dd-border);color:var(--dd-accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 16px;border-radius:50px;text-decoration:none;cursor:pointer;transition:all .15s;touch-action:manipulation;}
+.dd-back:hover{background:var(--dd-accent);color:white;border-color:var(--dd-accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:20px;color:#2d2d2d;}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:16px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--dd-accent);}.dd-logo .f{color:var(--dd-accent3);}
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+  <div style="font-family:'Fredoka One',cursive;font-size:14px;margin-bottom:8px;"><a href="index.html" style="text-decoration:none;"><span style="color:#ff6b6b;">dot</span><span style="color:#6c5ce7;">dash</span><span style="color:#00b894;">.fun</span></a></div>
+  <div class="home-emoji">🚁</div>
+  <div class="home-title" style="font-family:'Fredoka One',cursive;">Oil Spill!</div>
+  <div class="home-sub">Key words in morse to send the helicopter.<br>Stop the oil cans from spilling! 15 levels.</div>
+
+  <div class="speed-box">
+    <label>SET YOUR KEYING SPEED</label>
+    <div class="speed-row">
+      <span>FAST</span>
+      <input type="range" min="50" max="800" value="400" id="homeSpeed" oninput="homeUpdateSpeed(this.value)">
+      <span>SLOW</span>
+      <span class="speed-val" id="homeSpeedVal">400ms</span>
+    </div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center;">Hold ≥ <span id="homeSpeedHint">400</span>ms for a dash</div>
+  </div>
+
+  <button class="start-btn" onclick="beginGame()" style="font-family:'Nunito',sans-serif;font-weight:800;">▶ Start Level 1</button>
+  <a href="games.html" style="font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;color:#888;text-decoration:none;margin-top:4px;">← Back to Games</a>
+</div>
+
+<!-- GAME -->
+<div class="screen" id="game">
+  <div class="hud">
+    <button class="hud-btn dd-back" id="quitBtn" style="font-family:'Nunito',sans-serif;font-size:12px;font-weight:800;">← Quit</button>
+    <span class="hud-title" id="levelLabel" style="font-family:'Fredoka One',cursive;">Level 1</span>
+    <div class="hud-stats">
+      <span class="hud-stat">🛢️ <span id="cansLeft">50</span></span>
+      <span class="hud-stat" style="color:#f87171;">💧 <span id="spilled">0</span></span>
+      <span class="hud-stat" style="color:#a78bfa;">★ <span id="scoreDisplay">0</span></span>
+    </div>
+  </div>
+  <canvas id="gameCanvas"></canvas>
+  <div class="controls">
+    <div class="word-prompt">
+      <div class="word-label">KEY THIS WORD</div>
+      <div class="word-text" id="wordPrompt">HI</div>
+      <div class="word-typed" id="wordTyped">_</div>
+    </div>
+    <div class="feedback-row" id="gameFeedback"></div>
+    <button class="key-btn" id="keyBtn">📡 &nbsp; HOLD = — &nbsp; TAP = ·</button>
+  </div>
+</div>
+
+<!-- END -->
+<div class="screen" id="end">
+  <div class="end-panel">
+    <span class="end-emoji" id="endEmoji">🏆</span>
+    <div class="end-title" id="endTitle">Level Complete!</div>
+    <div class="end-msg" id="endMsg"></div>
+    <div class="end-stats">
+      <div class="end-stat">
+        <span class="end-stat-val" id="endScore">0</span>
+        <span class="end-stat-label">SCORE</span>
+      </div>
+      <div class="end-stat">
+        <span class="end-stat-val" id="endRescued" style="color:var(--success);">0</span>
+        <span class="end-stat-label">RESCUED</span>
+      </div>
+    </div>
+    <div class="speed-adj">
+      <label>ADJUST SPEED FOR NEXT LEVEL</label>
+      <div class="speed-adj-row">
+        <span>FAST</span>
+        <input type="range" min="50" max="800" value="400" id="endSpeed" oninput="endUpdateSpeed(this.value)">
+        <span>SLOW</span>
+        <span class="speed-adj-val" id="endSpeedVal">400ms</span>
+      </div>
+    </div>
+    <button class="btn-primary" id="nextBtn" onclick="nextLevel()">Next Level →</button>
+    <button class="btn-secondary" onclick="shareScore()">📋 Copy Score to Share</button>
+    <button class="btn-secondary" onclick="goHome()">← Home</button>
+    <div class="end-promo">More games at <a href="https://dotdash.fun" target="_blank">dotdash.fun</a></div>
+  </div>
+</div>
+
+<script>
+const MORSE = {
+  A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',
+  K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',
+  U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',
+  1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',0:'-----'
+};
+
+// Level config
+const LEVELS = Array.from({length:15},(_,i)=>({ level:i+1, interval:2000-i*100, wordLen:i+2 }));
+
+// Word bank
+const WORDS = {
+  2:['HI','BE','GO','DO','ME','NO','SO','UP','IT','ON'],
+  3:['CAT','DOG','RUN','FLY','SOS','OIL','SEA','SKY','WIN','BIG'],
+  4:['SHIP','HELP','SAVE','DIVE','RACE','FIRE','WAVE','DARK','FAST','RISK'],
+  5:['OCEAN','RADIO','FLAME','STORM','CRASH','SMOKE','ALERT','PILOT'],
+  6:['RESCUE','SIGNAL','DANGER','LAUNCH','BARREL','WATERS'],
+  7:['MISSION','CAPTAIN','CONTROL','PROTECT','WARNING'],
+  8:['CALL HELP','STOP LEAK','SAVE THEM','MAYDAY SOS'],
+  9:['SEND HELP NOW','OIL IS BAD'],
+  10:['SAVE THE SEA','STOP THE OIL'],
+  11:['CLEAN UP THE OIL'],
+  12:['SEND RESCUE NOW'],
+  13:['OIL IN THE WATER'],
+  14:['SAVE THE SEA BIRDS'],
+  15:['STOP ALL OIL SPILLS'],
+  16:['STOP THE OIL BARREL'],
+};
+
+// State
+let dashMs = 400;
+let currentLevel = 0;
+let highestLevel = 0;
+let cansTotal = 50, cansSpilled = 0, cansRescued = 0, score = 0;
+let currentWord = '', typedWord = '', keySeq = '';
+let pressStart = 0, keyTimer = null, spillTimer = null, animFrame = null;
+let heliMoving = false, gameActive = false;
+let time = 0;
+
+// Canvas objects
+let canvas, ctx;
+let cans = [], rainDrops = [], clouds = [];
+let heliX = 0, heliY = 0, heliTargetX = 0, heliTargetY = 0;
+let oilSlickSize = 0, lightningAlpha = 0, lightningTimer = 0;
+
+function homeUpdateSpeed(val) {
+  dashMs = parseInt(val);
+  document.getElementById('homeSpeedVal').textContent = val + 'ms';
+  document.getElementById('homeSpeedHint').textContent = val;
+}
+
+function endUpdateSpeed(val) {
+  dashMs = parseInt(val);
+  document.getElementById('endSpeedVal').textContent = val + 'ms';
+}
+
+function goHome() {
+  stopGame();
+  showScreen('home');
+}
+
+function beginGame() {
+  startLevel(highestLevel);
+}
+
+function nextLevel() {
+  const won = document.getElementById('endTitle').textContent.includes('Complete');
+  if (!won) { startLevel(currentLevel); return; }
+  if (currentLevel < LEVELS.length - 1) startLevel(currentLevel + 1);
+  else goHome();
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function startLevel(idx) {
+  currentLevel = idx;
+  cansTotal = 50; cansSpilled = 0; cansRescued = 0; score = 0;
+  typedWord = ''; keySeq = ''; pressStart = 0;
+  heliMoving = false; gameActive = true;
+  oilSlickSize = 0; time = 0; lightningAlpha = 0;
+  lightningTimer = 150 + Math.random() * 300;
+
+  if (spillTimer) { clearInterval(spillTimer); spillTimer = null; }
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  if (keyTimer) { clearTimeout(keyTimer); keyTimer = null; }
+
+  document.getElementById('levelLabel').textContent = `Level ${idx + 1}`;
+  updateHUD();
+
+  showScreen('game');
+
+  canvas = document.getElementById('gameCanvas');
+  ctx = canvas.getContext('2d');
+  resizeCanvas();
+
+  initScene();
+  newWord();
+  animFrame = requestAnimationFrame(gameLoop);
+
+  const lvl = LEVELS[idx];
+  spillTimer = setInterval(() => {
+    if (!gameActive || heliMoving) return;
+    spillCan();
+  }, lvl.interval);
+}
+
+function resizeCanvas() {
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  initScene();
+}
+
+function initScene() {
+  const W = canvas.width, H = canvas.height;
+  const horizY = H * 0.48;
+  const islandCX = W * 0.62;
+
+  rainDrops = Array.from({length:80}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    len: 10+Math.random()*14, speed: 7+Math.random()*7,
+    opacity: 0.15+Math.random()*0.3, angle: 0.15
+  }));
+
+  clouds = [
+    {x:W*0.0,  y:H*0.04, w:W*0.35, h:H*0.18, speed:0.4},
+    {x:W*0.4,  y:H*0.02, w:W*0.28, h:H*0.14, speed:0.25},
+    {x:W*0.72, y:H*0.06, w:W*0.38, h:H*0.2,  speed:0.3},
+  ];
+
+  cans = [];
+  for (let i=0; i<50; i++) {
+    cans.push({
+      x: islandCX - 55 + (i%10)*13,
+      y: horizY - 8 - Math.floor(i/10)*9,
+      spilling:false, gone:false, spillProgress:0, angle:0,
+      vx:(Math.random()-0.5)*2
+    });
+  }
+
+  heliX = W * 0.18; heliY = H * 0.22;
+  heliTargetX = heliX; heliTargetY = heliY;
+}
+
+function stopGame() {
+  gameActive = false;
+  if (spillTimer) { clearInterval(spillTimer); spillTimer = null; }
+  if (animFrame) { cancelAnimationFrame(animFrame); animFrame = null; }
+  if (keyTimer) { clearTimeout(keyTimer); keyTimer = null; }
+}
+
+function updateHUD() {
+  document.getElementById('cansLeft').textContent = cansTotal - cansSpilled - cansRescued;
+  document.getElementById('spilled').textContent = cansSpilled;
+  document.getElementById('scoreDisplay').textContent = score;
+}
+
+function newWord() {
+  const lvl = LEVELS[currentLevel];
+  const list = WORDS[lvl.wordLen] || WORDS[2];
+  currentWord = list[Math.floor(Math.random()*list.length)];
+  typedWord = ''; keySeq = '';
+  const target = currentWord.replace(/ /g,'');
+  document.getElementById('wordPrompt').textContent = currentWord;
+  document.getElementById('wordTyped').textContent = '_'.repeat(target.length);
+  document.getElementById('gameFeedback').textContent = '';
+  document.getElementById('gameFeedback').style.color = '#34d399';
+}
+
+function spillCan() {
+  if (cansSpilled + cansRescued >= cansTotal) return;
+  const can = cans.find(c => !c.gone && !c.spilling);
+  if (can) {
+    can.spilling = true;
+    cansSpilled++;
+    oilSlickSize += 8;
+    updateHUD();
+    if (cansSpilled >= cansTotal) setTimeout(() => endGame(false), 1000);
+  }
+}
+
+// ── KEYING ──
+document.getElementById('keyBtn').addEventListener('touchstart', e => { e.preventDefault(); keyDown(); }, {passive:false});
+document.getElementById('keyBtn').addEventListener('touchend',   e => { e.preventDefault(); keyUp();   }, {passive:false});
+document.getElementById('keyBtn').addEventListener('mousedown',  () => keyDown());
+document.getElementById('keyBtn').addEventListener('mouseup',    () => keyUp());
+document.getElementById('keyBtn').addEventListener('mouseleave', () => keyUp());
+document.getElementById('quitBtn').addEventListener('touchstart', e => { e.preventDefault(); stopGame(); goHome(); }, {passive:false});
+document.getElementById('quitBtn').addEventListener('click', () => { stopGame(); goHome(); });
+
+document.addEventListener('keydown', e => { if (e.code==='Space' && gameActive) { e.preventDefault(); keyDown(); }});
+document.addEventListener('keyup',   e => { if (e.code==='Space' && gameActive) { e.preventDefault(); keyUp(); }});
+
+function keyDown() {
+  if (pressStart || !gameActive) return;
+  pressStart = Date.now();
+  document.getElementById('keyBtn').classList.add('pressed');
+  if (keyTimer) { clearTimeout(keyTimer); keyTimer = null; }
+}
+
+function keyUp() {
+  if (!pressStart) return;
+  const dur = Date.now() - pressStart;
+  pressStart = 0;
+  document.getElementById('keyBtn').classList.remove('pressed');
+  keySeq += dur >= dashMs ? '-' : '.';
+
+  if (keyTimer) clearTimeout(keyTimer);
+  keyTimer = setTimeout(() => {
+    const letter = Object.keys(MORSE).find(k => MORSE[k] === keySeq);
+    if (letter) {
+      typedWord += letter;
+      keySeq = '';
+      const target = currentWord.replace(/ /g,'');
+      document.getElementById('wordTyped').textContent =
+        typedWord + '_'.repeat(Math.max(0, target.length - typedWord.length));
+      checkWord();
+    } else {
+      keySeq = '';
+    }
+  }, dashMs * 2);
+}
+
+function checkWord() {
+  const target = currentWord.replace(/ /g,'');
+  if (typedWord.toUpperCase() === target.toUpperCase()) {
+    score += 10 + LEVELS[currentLevel].level * 5;
+    document.getElementById('gameFeedback').textContent = '✓ Sending helicopter!';
+    heliMoving = true;
+
+    const W = canvas.width, H = canvas.height;
+    heliTargetX = W * 0.72; heliTargetY = H * 0.22;
+
+    setTimeout(() => {
+      const remaining = cans.filter(c => !c.gone && !c.spilling);
+      cansRescued += remaining.length;
+      score += remaining.length * 10;
+      oilSlickSize = 0;
+      remaining.forEach(c => c.gone = true);
+      updateHUD();
+
+      heliTargetX = W * 0.18; heliTargetY = H * 0.22;
+      setTimeout(() => {
+        heliMoving = false;
+        endGame(true);
+      }, 1800);
+    }, 2000);
+
+  } else if (!target.startsWith(typedWord.toUpperCase())) {
+    document.getElementById('gameFeedback').style.color = '#f87171';
+    document.getElementById('gameFeedback').textContent = '✗ Wrong! Try again.';
+    setTimeout(() => {
+      typedWord = ''; keySeq = '';
+      document.getElementById('wordTyped').textContent = '_'.repeat(target.length);
+      document.getElementById('gameFeedback').textContent = '';
+      document.getElementById('gameFeedback').style.color = '#34d399';
+    }, 600);
+  }
+}
+
+function endGame(won) {
+  stopGame();
+  if (won && currentLevel >= highestLevel) highestLevel = Math.min(currentLevel+1, LEVELS.length-1);
+
+  document.getElementById('endEmoji').textContent = won ? '🏆' : cansSpilled >= 40 ? '💀' : '🌊';
+  document.getElementById('endTitle').textContent = won ? `Level ${currentLevel+1} Complete!` : 'Game Over!';
+  document.getElementById('endMsg').textContent = won
+    ? `You rescued ${cansRescued} cans! Only ${cansSpilled} spilled.`
+    : `${cansSpilled} cans spilled. You rescued ${cansRescued}.`;
+  document.getElementById('endScore').textContent = score;
+  document.getElementById('endRescued').textContent = cansRescued;
+
+  const nextBtn = document.getElementById('nextBtn');
+  if (!won) nextBtn.textContent = 'Try Again →';
+  else if (currentLevel >= LEVELS.length-1) nextBtn.textContent = 'You beat all 15! 🏆';
+  else nextBtn.textContent = `Next: Level ${currentLevel+2} →`;
+
+  // Sync speed slider
+  document.getElementById('endSpeed').value = dashMs;
+  document.getElementById('endSpeedVal').textContent = dashMs + 'ms';
+
+  showScreen('end');
+}
+
+function shareScore() {
+  const s = document.getElementById('endScore').textContent;
+  const r = document.getElementById('endRescued').textContent;
+  const won = document.getElementById('endTitle').textContent.includes('Complete');
+  const lvl = currentLevel + 1;
+  const text = `${won?'🏆':'🌊'} Morse Oil Spill!\n\n${won?'✓':'✗'} Level ${lvl} ${won?'Complete':'Game Over'}\nRescued: ${r} cans\nScore: ${s} pts\n\nCan you do better? 📡\nhttps://dotdash.fun`;
+  navigator.clipboard.writeText(text).catch(() => {});
+  const btn = event.target;
+  btn.textContent = '✓ Copied!';
+  btn.style.color = 'var(--success)';
+  setTimeout(() => { btn.textContent = '📋 Copy Score to Share'; btn.style.color = ''; }, 2000);
+}
+
+// ── CANVAS GAME LOOP ──
+function gameLoop() {
+  if (!gameActive) return;
+  time++;
+  const W = canvas.width, H = canvas.height;
+  const horizY = H * 0.48;
+  ctx.clearRect(0, 0, W, H);
+
+  // Sky
+  const skyG = ctx.createLinearGradient(0,0,0,horizY);
+  skyG.addColorStop(0,'#04060f'); skyG.addColorStop(0.5,'#0f1e3d'); skyG.addColorStop(1,'#152548');
+  ctx.fillStyle = skyG; ctx.fillRect(0,0,W,horizY+2);
+
+  // Clouds
+  clouds.forEach(c => {
+    c.x += c.speed * 0.25; if (c.x > W+c.w) c.x = -c.w;
+    for (let b=0;b<4;b++) {
+      const bx=c.x+(b/4)*c.w, by=c.y+Math.sin(b*1.2)*c.h*0.3, br=c.h*(0.5+Math.sin(b*0.8)*0.3);
+      const cg=ctx.createRadialGradient(bx,by,0,bx,by,br);
+      cg.addColorStop(0,'rgba(35,45,80,0.85)'); cg.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=cg; ctx.beginPath(); ctx.ellipse(bx,by,br*1.4,br,0,0,Math.PI*2); ctx.fill();
+    }
+  });
+
+  // Lightning
+  lightningTimer--;
+  if (lightningTimer<=0) { lightningAlpha=1.0; lightningTimer=200+Math.random()*400; }
+  if (lightningAlpha>0) {
+    if (lightningAlpha>0.8) {
+      ctx.save(); ctx.shadowColor='rgba(200,230,255,1)'; ctx.shadowBlur=20;
+      ctx.strokeStyle=`rgba(220,240,255,${lightningAlpha})`; ctx.lineWidth=2.5;
+      ctx.beginPath();
+      const lx=W*(0.3+Math.random()*0.4); let ly=0; ctx.moveTo(lx,ly);
+      for(let s=0;s<5;s++){ly+=H*0.07;ctx.lineTo(lx+(Math.random()-0.5)*30,ly);}
+      ctx.stroke(); ctx.restore();
+    }
+    ctx.fillStyle=`rgba(120,160,255,${lightningAlpha*0.05})`; ctx.fillRect(0,0,W,H);
+    lightningAlpha-=0.035;
+  }
+
+  // Ocean
+  const oceanG=ctx.createLinearGradient(0,horizY,0,H);
+  oceanG.addColorStop(0,'#0d2347'); oceanG.addColorStop(1,'#040d1e');
+  ctx.fillStyle=oceanG; ctx.fillRect(0,horizY,W,H-horizY);
+
+  // Waves
+  for(let w=0;w<5;w++){
+    ctx.save(); ctx.strokeStyle=`rgba(60,120,220,${0.2-w*0.03})`; ctx.lineWidth=1.2;
+    ctx.beginPath();
+    const wy=horizY+12+w*((H-horizY)/6);
+    for(let x=0;x<=W;x+=3){
+      const y=wy+Math.sin(x*0.015+time*0.05-w*0.8)*(4+w*2.5);
+      x===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    }
+    ctx.stroke(); ctx.restore();
+  }
+
+  // Oil slick
+  if(oilSlickSize>0){
+    const sx=W*0.55, sy=horizY+40;
+    ctx.save(); ctx.globalAlpha=0.7;
+    const og=ctx.createRadialGradient(sx,sy,0,sx,sy,oilSlickSize);
+    og.addColorStop(0,'rgba(2,1,0,1)'); og.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=og; ctx.beginPath();
+    ctx.ellipse(sx,sy,oilSlickSize*1.4,oilSlickSize*0.4,0,0,Math.PI*2); ctx.fill();
+    ctx.globalAlpha=0.18;
+    ['#ff6eb4','#48d1ff','#1dd1a1'].forEach((col,i)=>{
+      const sg=ctx.createRadialGradient(sx+i*8,sy,0,sx,sy,oilSlickSize*0.6);
+      sg.addColorStop(0,col); sg.addColorStop(1,'transparent');
+      ctx.fillStyle=sg; ctx.beginPath();
+      ctx.ellipse(sx+i*5,sy,oilSlickSize*0.5,oilSlickSize*0.18,0,0,Math.PI*2); ctx.fill();
+    });
+    ctx.restore();
+  }
+
+  // Island
+  const iCX=W*0.62;
+  ctx.save();
+  const ig=ctx.createLinearGradient(iCX-W*0.2,horizY-35,iCX,horizY+20);
+  ig.addColorStop(0,'#2a4a1a'); ig.addColorStop(1,'#4a3010');
+  ctx.fillStyle=ig; ctx.beginPath();
+  ctx.moveTo(iCX-W*0.22,horizY+18);
+  ctx.bezierCurveTo(iCX-W*0.15,horizY-30,iCX-W*0.05,horizY-38,iCX,horizY-32);
+  ctx.bezierCurveTo(iCX+W*0.08,horizY-28,iCX+W*0.16,horizY-8,iCX+W*0.2,horizY+18);
+  ctx.closePath(); ctx.fill();
+  const bG=ctx.createLinearGradient(0,horizY-5,0,horizY+18);
+  bG.addColorStop(0,'#c8973a'); bG.addColorStop(1,'#8a6020');
+  ctx.fillStyle=bG; ctx.beginPath();
+  ctx.ellipse(iCX+W*0.02,horizY+10,W*0.22,16,0,0,Math.PI*2); ctx.fill();
+  // Palm tree
+  [{x:iCX-30,h:38},{x:iCX+10,h:44},{x:iCX+48,h:36}].forEach(t=>{
+    ctx.save(); ctx.translate(t.x,horizY-4);
+    ctx.rotate(Math.sin(time*0.025)*0.07);
+    ctx.strokeStyle='#5a3510'; ctx.lineWidth=3; ctx.beginPath();
+    ctx.moveTo(0,0); ctx.bezierCurveTo(3,-t.h*0.3,-3,-t.h*0.7,0,-t.h); ctx.stroke();
+    [[0,-t.h,16],[-12,-t.h+6,12],[12,-t.h+6,12]].forEach(([lx,ly,r])=>{
+      ctx.fillStyle='#1a4a1a'; ctx.beginPath();
+      ctx.ellipse(lx,ly,r,r*0.5,0,0,Math.PI*2); ctx.fill();
+    });
+    ctx.restore();
+  });
+  ctx.restore();
+
+  // Oil cans
+  cans.forEach(can=>{
+    if(can.gone)return;
+    ctx.save();
+    if(can.spilling){
+      can.spillProgress+=0.035; can.angle+=0.1;
+      can.x+=can.vx*can.spillProgress*1.5;
+      can.y+=can.spillProgress*28;
+      ctx.translate(can.x,can.y); ctx.rotate(can.angle);
+      ctx.globalAlpha=Math.max(0,1-can.spillProgress*1.1);
+      if(can.spillProgress>=1)can.gone=true;
+    } else { ctx.translate(can.x,can.y); }
+    const cw=5,ch=9;
+    const canG=ctx.createLinearGradient(-cw,0,cw,0);
+    canG.addColorStop(0,'#7a1010'); canG.addColorStop(0.4,'#c0392b');
+    canG.addColorStop(0.65,'#e74c3c'); canG.addColorStop(1,'#7a1010');
+    ctx.fillStyle=canG; ctx.beginPath();
+    ctx.roundRect(-cw,-ch,cw*2,ch*2,[2,2,3,3]); ctx.fill();
+    ctx.fillStyle='#555'; ctx.beginPath(); ctx.ellipse(0,-ch,cw,2.5,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#e8b84b'; ctx.fillRect(-cw+0.5,-ch*0.1,(cw-0.5)*2,ch*0.55);
+    ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.beginPath();
+    ctx.roundRect(-cw+1,-ch+1,cw*0.7,ch*1.6,1); ctx.fill();
+    ctx.restore();
+  });
+
+  // Helicopter
+  const spd=2.5;
+  const hdx=heliTargetX-heliX, hdy=heliTargetY-heliY;
+  const hd=Math.sqrt(hdx*hdx+hdy*hdy);
+  if(hd>1){heliX+=(hdx/hd)*Math.min(spd,hd);heliY+=(hdy/hd)*Math.min(spd,hd);}
+  const hov=Math.sin(time*0.07)*2.5;
+  ctx.save(); ctx.translate(heliX,heliY+hov);
+  if(heliX>W*0.45){
+    ctx.save(); const sg=ctx.createLinearGradient(0,12,0,90);
+    sg.addColorStop(0,'rgba(255,255,200,0.3)'); sg.addColorStop(1,'rgba(255,255,200,0)');
+    ctx.fillStyle=sg; ctx.beginPath(); ctx.moveTo(-6,12); ctx.lineTo(6,12);
+    ctx.lineTo(25,90); ctx.lineTo(-25,90); ctx.closePath(); ctx.fill(); ctx.restore();
+  }
+  ctx.strokeStyle='#7f8c8d'; ctx.lineWidth=3; ctx.beginPath();
+  ctx.moveTo(-16,2); ctx.lineTo(-36,-5); ctx.stroke();
+  ctx.save(); ctx.translate(-36,-5); ctx.rotate(time*0.4);
+  ctx.strokeStyle='rgba(180,180,180,0.7)'; ctx.lineWidth=1.5; ctx.beginPath();
+  ctx.moveTo(0,-8);ctx.lineTo(0,8);ctx.moveTo(-8,0);ctx.lineTo(8,0);ctx.stroke(); ctx.restore();
+  const bG2=ctx.createLinearGradient(0,-12,0,10);
+  bG2.addColorStop(0,'#e74c3c'); bG2.addColorStop(1,'#922b21');
+  ctx.fillStyle=bG2; ctx.beginPath(); ctx.ellipse(2,-1,18,9,-0.1,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(120,220,255,0.75)'; ctx.beginPath();
+  ctx.ellipse(10,-2,10,7,-0.2,0,Math.PI*2); ctx.fill();
+  ctx.save(); ctx.translate(0,-12); ctx.rotate(time*0.35);
+  ctx.strokeStyle='rgba(200,200,200,0.85)'; ctx.lineWidth=2; ctx.beginPath();
+  ctx.moveTo(-28,0);ctx.lineTo(28,0);ctx.moveTo(-8,-24);ctx.lineTo(8,24);ctx.stroke();
+  ctx.fillStyle='#555'; ctx.beginPath(); ctx.arc(0,0,3,0,Math.PI*2); ctx.fill(); ctx.restore();
+  ctx.restore();
+
+  // Rain
+  ctx.save();
+  rainDrops.forEach(d=>{
+    d.x+=d.angle*d.speed*0.5; d.y+=d.speed;
+    if(d.y>H+d.len){d.y=-d.len;d.x=Math.random()*W;}
+    ctx.strokeStyle=`rgba(140,170,240,${d.opacity})`; ctx.lineWidth=0.8;
+    ctx.beginPath(); ctx.moveTo(d.x,d.y); ctx.lineTo(d.x+d.angle*d.len*0.4,d.y+d.len); ctx.stroke();
+  });
+  ctx.restore();
+
+  // Ship deck foreground
+  const rock=Math.sin(time*0.018)*3;
+  ctx.save(); ctx.translate(0,rock*0.5);
+  const deckG=ctx.createLinearGradient(0,H*0.72,0,H);
+  deckG.addColorStop(0,'#1a2030'); deckG.addColorStop(1,'#0d1018');
+  ctx.fillStyle=deckG; ctx.beginPath();
+  ctx.moveTo(0,H*0.72);ctx.lineTo(W,H*0.72);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.04)';
+  for(let i=0;i<6;i++){ctx.fillRect(0,H*0.72+i*((H-H*0.72)/5),W,1);}
+  ctx.fillStyle='#253040'; ctx.fillRect(0,H*0.72-5,W,9);
+  ctx.fillStyle='#2c3e50'; ctx.fillRect(0,H*0.68,W,7);
+  ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fillRect(0,H*0.68,W,2);
+  const posts=Math.floor(W/44);
+  for(let i=0;i<=posts;i++){
+    const px=i*(W/posts);
+    ctx.fillStyle='#34495e'; ctx.fillRect(px-3,H*0.68,6,H*0.72-H*0.68+8);
+  }
+  // Binoculars
+  ctx.fillStyle='#1a2030'; ctx.fillRect(W/2-32,H-26,64,26);
+  ctx.fillStyle='#0d0f18';
+  ctx.beginPath(); ctx.ellipse(W/2-13,H-8,12,16,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(W/2+13,H-8,12,16,0,0,Math.PI*2); ctx.fill();
+  ctx.fillStyle='rgba(80,120,200,0.15)';
+  ctx.beginPath(); ctx.ellipse(W/2-13,H-8,12,16,0,0,Math.PI*2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(W/2+13,H-8,12,16,0,0,Math.PI*2); ctx.fill();
+  ctx.restore();
+
+  // Vignette
+  const vig=ctx.createRadialGradient(W/2,H/2,H*0.2,W/2,H/2,H*0.9);
+  vig.addColorStop(0,'rgba(0,0,0,0)'); vig.addColorStop(1,'rgba(0,0,0,0.5)');
+  ctx.fillStyle=vig; ctx.fillRect(0,0,W,H);
+
+  animFrame = requestAnimationFrame(gameLoop);
+}
+
+window.addEventListener('resize', () => { if(canvas){resizeCanvas();}});
+</script>
+</body>
+</html>

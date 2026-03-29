@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Decode By Ear — dotdash.fun</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff9f0;--accent:#6c5ce7;--accent2:#ff6b6b;--accent3:#00b894;--accent4:#fdcb6e;--text:#2d2d2d;--muted:#888;--panel:#fff;--border:#ede8ff;--radius:20px;--success:#059669;--success-dim:#d1fae5;--error:#dc2626;--error-dim:#fee2e2;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;overflow:hidden;}
+button,a{touch-action:manipulation;}
+.dd-nav{display:flex;align-items:center;gap:12px;padding:12px 20px;background:white;border-bottom:3px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(108,92,231,.08);}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--bg);border:2.5px solid var(--border);color:var(--accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 16px;border-radius:50px;text-decoration:none;transition:all .15s;}
+.dd-back:hover{background:var(--accent);color:white;border-color:var(--accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:17px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--accent);}.dd-logo .f{color:var(--accent3);}
+.dd-score-chip{margin-left:auto;font-family:'Fredoka One',cursive;font-size:15px;color:var(--accent);background:var(--border);padding:4px 14px;border-radius:20px;}
+.body{max-width:520px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;align-items:center;gap:14px;height:calc(100vh - 57px);overflow-y:auto;}
+.mystery{background:var(--panel);border:2.5px solid var(--border);border-radius:var(--radius);padding:28px;width:100%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.05);}
+.mystery-label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:2px;margin-bottom:12px;}
+.mystery-marks{font-family:'Fredoka One',cursive;font-size:44px;letter-spacing:8px;color:var(--border);}
+.mystery-sub{font-size:11px;font-weight:700;color:var(--muted);margin-top:8px;}
+.stats{display:flex;gap:10px;width:100%;}
+.stat{flex:1;background:var(--panel);border:2.5px solid var(--border);border-radius:14px;padding:12px;text-align:center;}
+.stat-val{font-family:'Fredoka One',cursive;font-size:22px;color:var(--accent);display:block;}
+.stat-label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;}
+.speed-panel{background:var(--panel);border:2.5px solid var(--border);border-radius:14px;padding:14px 16px;width:100%;}
+.speed-label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:2px;margin-bottom:8px;}
+.speed-row{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;color:var(--muted);}
+.speed-row input{flex:1;accent-color:var(--accent);}
+.speed-val{color:var(--accent);font-weight:800;min-width:48px;text-align:right;}
+.play-btn{width:100%;height:58px;background:linear-gradient(135deg,var(--accent),#a78bfa);border:none;border-radius:var(--radius);color:white;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;touch-action:manipulation;}
+.play-btn:disabled{opacity:.5;}
+.feedback{font-size:13px;min-height:20px;text-align:center;font-weight:800;}
+.answer-row{display:flex;gap:8px;width:100%;}
+.answer-input{flex:1;background:var(--panel);border:2.5px solid var(--border);border-radius:14px;padding:13px 16px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:700;color:var(--text);outline:none;}
+.answer-input:focus{border-color:var(--accent);}
+.submit-btn{background:var(--accent);border:none;color:white;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:13px 18px;border-radius:14px;cursor:pointer;touch-action:manipulation;white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="dd-nav">
+  <a class="dd-back" href="games.html">← Games</a>
+  <span class="dd-title">👂 Decode By Ear</span>
+  <span class="dd-score-chip" id="scoreLabel">1000 pts</span>
+</div>
+<div class="body" id="gameArea">
+  <div class="mystery">
+    <div class="mystery-label">MYSTERY MESSAGE</div>
+    <div class="mystery-marks">? ? ? ? ?</div>
+    <div class="mystery-sub">Listen carefully — decode it in English</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><span class="stat-val" id="playsDisplay">0</span><span class="stat-label">PLAYS</span></div>
+    <div class="stat"><span class="stat-val" id="triesDisplay" style="color:var(--error);">0 / 5</span><span class="stat-label">TRIES</span></div>
+    <div class="stat"><span class="stat-val" id="scoreDisplay">1000</span><span class="stat-label">SCORE</span></div>
+  </div>
+  <div class="speed-panel">
+    <div class="speed-label">PLAYBACK SPEED <span style="color:var(--accent4);font-size:10px;">(slower = less score)</span></div>
+    <div class="speed-row">
+      <span>FAST</span>
+      <input type="range" min="50" max="800" value="200" step="50" id="speedSlider" oninput="updateSpeed(this.value)">
+      <span>SLOW</span>
+      <span class="speed-val" id="speedVal">200ms</span>
+    </div>
+  </div>
+  <button class="play-btn" id="playBtn" onclick="play()">▶ Play Message</button>
+  <div class="feedback" id="feedback"></div>
+  <div class="answer-row">
+    <input class="answer-input" id="answerInput" type="text" placeholder="Type what you heard..." autocomplete="off" spellcheck="false">
+    <button class="submit-btn" onclick="submit()">Submit →</button>
+  </div>
+</div>
+<div class="body" id="endArea" style="display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--panel);border:2.5px solid var(--border);border-radius:var(--radius);padding:36px 24px;max-width:400px;width:100%;box-shadow:0 8px 32px rgba(108,92,231,.12);text-align:center;">
+    <div style="font-size:60px;margin-bottom:12px;" id="endEmoji">🎉</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:28px;color:var(--text);margin-bottom:8px;" id="endTitle">Decoded!</div>
+    <p style="font-size:13px;font-weight:600;color:var(--muted);line-height:1.8;margin-bottom:8px;" id="endMsg"></p>
+    <div style="font-family:'Fredoka One',cursive;font-size:18px;color:var(--text);background:var(--bg);border-radius:14px;padding:12px;margin-bottom:16px;" id="endAnswer"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:20px;">
+      <div style="background:var(--bg);border-radius:12px;padding:12px;"><span style="font-family:'Fredoka One',cursive;font-size:22px;color:var(--accent);display:block;" id="endScore">0</span><span style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;">SCORE</span></div>
+      <div style="background:var(--bg);border-radius:12px;padding:12px;"><span style="font-family:'Fredoka One',cursive;font-size:22px;color:var(--accent4);display:block;" id="endPlays">0</span><span style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;">PLAYS</span></div>
+      <div style="background:var(--bg);border-radius:12px;padding:12px;"><span style="font-family:'Fredoka One',cursive;font-size:22px;color:var(--error);display:block;" id="endTries">0</span><span style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;">TRIES</span></div>
+    </div>
+    <button onclick="startGame()" style="width:100%;background:var(--accent);border:none;color:white;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;padding:15px;border-radius:14px;cursor:pointer;touch-action:manipulation;margin-bottom:8px;">Play Again →</button>
+    <button onclick="copyScore()" id="copyBtn" style="width:100%;background:var(--bg);border:2px solid var(--border);color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:13px;border-radius:14px;cursor:pointer;touch-action:manipulation;margin-bottom:8px;">📋 Copy Score to Share</button>
+    <a href="games.html" style="display:block;background:var(--bg);border:2px solid var(--border);color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:13px;border-radius:14px;text-align:center;text-decoration:none;">← Back to Games</a>
+  </div>
+</div>
+<script>
+const MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',0:'-----'};
+const SENTENCES=['SEND HELP NOW','WELL DONE','GOOD MORNING','KEEP GOING','NICE WORK','STAY CALM','CALL ME BACK','ALL CLEAR','MORSE IS FUN','HELLO WORLD','SIGNAL LOST','COME IN NOW','GREAT JOB','STAND BY','ROGER THAT','OVER AND OUT','LOUD AND CLEAR','MESSAGE SENT','TIME TO LEARN','NEVER GIVE UP','COPY THAT','ON MY WAY','HOLD THE LINE','GO FOR IT','DO YOU COPY','WHAT IS YOUR STATUS','BASE CAMP HERE','SIGNAL IS WEAK','COME IN PLEASE','RADIO CHECK','TRANSMISSION COMPLETE','AWAITING REPLY','FREQUENCY CLEAR','MAYDAY MAYDAY','ALL STATIONS','END OF MESSAGE','RECEIVING YOU WELL','SIGNAL STRONG','CHANNEL IS OPEN','BROADCAST NOW','YOU GOT THIS','KEEP PRACTICING','ALMOST THERE','ONE MORE TIME','DO NOT STOP','STAY FOCUSED','PUSH THROUGH IT','BELIEVE IN YOURSELF','HARD WORK PAYS OFF','EVERY DOT COUNTS'];
+let sentence='',dashMs=200,plays=0,tries=0,score=1000,playing=false,maxTries=5,audioCtx=null;
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume();return audioCtx;}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+function updateSpeed(v){dashMs=parseInt(v);document.getElementById('speedVal').textContent=v+'ms';}
+function startGame(){
+  sentence=SENTENCES[Math.floor(Math.random()*SENTENCES.length)];
+  plays=0;tries=0;score=1000;playing=false;
+  document.getElementById('playsDisplay').textContent=0;
+  document.getElementById('triesDisplay').textContent=`0 / ${maxTries}`;
+  document.getElementById('scoreDisplay').textContent=1000;
+  document.getElementById('scoreLabel').textContent='1000 pts';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('feedback').style.color='var(--muted)';
+  document.getElementById('answerInput').value='';
+  document.getElementById('answerInput').disabled=false;
+  document.getElementById('playBtn').disabled=false;
+  document.getElementById('playBtn').textContent='▶ Play Message';
+  document.getElementById('gameArea').style.display='flex';
+  document.getElementById('endArea').style.display='none';
+}
+async function play(){
+  if(playing)return;playing=true;
+  const btn=document.getElementById('playBtn');btn.disabled=true;btn.textContent='🔊 Playing...';
+  plays++;
+  const speedPenalty=Math.round(Math.max(0,(dashMs-200)/50)*15);
+  score=Math.max(0,score-30-speedPenalty);
+  document.getElementById('playsDisplay').textContent=plays;
+  document.getElementById('scoreDisplay').textContent=score;
+  document.getElementById('scoreLabel').textContent=score+' pts';
+  await playSentence(sentence,dashMs);
+  btn.disabled=false;btn.textContent='▶ Play Again';playing=false;
+}
+async function playSentence(s,ms){
+  try{
+    const ctx=getCtx();
+    const dot=(ms/3)/1000,dash=ms/1000,sg=(ms/6)/1000,lg=(ms/2)/1000,wg=ms/1000;
+    let t=ctx.currentTime+0.1;
+    for(const ch of s){
+      if(ch===' '){t+=wg;continue;}
+      const code=MORSE[ch];if(!code)continue;
+      for(const sym of code){
+        const dur=sym==='.'?dot:dash;
+        const osc=ctx.createOscillator(),gain=ctx.createGain();
+        osc.connect(gain);gain.connect(ctx.destination);
+        osc.type='sine';osc.frequency.value=650;
+        gain.gain.setValueAtTime(0,t);gain.gain.linearRampToValueAtTime(0.4,t+0.005);
+        gain.gain.setValueAtTime(0.4,t+dur-0.01);gain.gain.linearRampToValueAtTime(0,t+dur);
+        osc.start(t);osc.stop(t+dur+0.01);t+=dur+sg;
+      }
+      t+=lg;
+    }
+    await sleep((t-ctx.currentTime)*1000+200);
+  }catch(e){}
+}
+document.getElementById('answerInput').addEventListener('keydown',e=>{if(e.key==='Enter')submit();});
+function submit(){
+  const input=document.getElementById('answerInput').value.trim().toUpperCase();
+  if(!input)return;
+  tries++;score=Math.max(0,score-80);
+  document.getElementById('triesDisplay').textContent=`${tries} / ${maxTries}`;
+  document.getElementById('scoreDisplay').textContent=score;
+  document.getElementById('scoreLabel').textContent=score+' pts';
+  const fb=document.getElementById('feedback');
+  if(input===sentence){fb.textContent='✓ Correct!';fb.style.color='var(--success)';document.getElementById('answerInput').disabled=true;document.getElementById('playBtn').disabled=true;setTimeout(()=>showEnd(true),800);}
+  else if(tries>=maxTries){fb.textContent='✗ Out of tries!';fb.style.color='var(--error)';score=0;document.getElementById('answerInput').disabled=true;document.getElementById('playBtn').disabled=true;setTimeout(()=>showEnd(false),800);}
+  else{const r=maxTries-tries;fb.textContent=`✗ Not quite — ${r} tr${r===1?'y':'ies'} left`;fb.style.color='var(--error)';document.getElementById('answerInput').value='';document.getElementById('answerInput').focus();}
+}
+function showEnd(won){
+  document.getElementById('endEmoji').textContent=won?(score>700?'🏆':score>400?'🎉':'👍'):'😬';
+  document.getElementById('endTitle').textContent=won?'Decoded!':'Game Over!';
+  document.getElementById('endMsg').textContent=won?`You decoded it in ${tries} tr${tries===1?'y':'ies'} and ${plays} play${plays===1?'':'s'}!`:`The message was:`;
+  document.getElementById('endAnswer').textContent=sentence;
+  document.getElementById('endScore').textContent=score;
+  document.getElementById('endPlays').textContent=plays;
+  document.getElementById('endTries').textContent=tries;
+  document.getElementById('gameArea').style.display='none';
+  document.getElementById('endArea').style.display='flex';
+}
+function copyScore(){
+  const s=document.getElementById('endScore').textContent;
+  const p=document.getElementById('endPlays').textContent;
+  const t=document.getElementById('endTries').textContent;
+  const won=document.getElementById('endTitle').textContent==='Decoded!';
+  const emoji=won?(parseInt(s)>700?'🏆':parseInt(s)>400?'🎉':'👍'):'😬';
+  const text=`${emoji} Morse Code — Decode By Ear\n\n${won?'✓ Decoded!':'✗ Could not decode'}\nScore: ${s} pts\nPlays: ${p}   Tries: ${t}\n\nCan you do better? 👂\nhttps://dotdash.fun`;
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const b=document.getElementById('copyBtn');b.textContent='✓ Copied!';b.style.color='var(--success)';
+  setTimeout(()=>{b.textContent='📋 Copy Score to Share';b.style.color='';},2000);
+}
+startGame();
+</script>
+</body>
+</html>

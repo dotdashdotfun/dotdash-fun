@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>About Morse Code — dotdash.fun</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff9f0;--accent:#6c5ce7;--accent2:#ff6b6b;--accent3:#00b894;--accent4:#fdcb6e;--text:#2d2d2d;--muted:#888;--panel:#fff;--border:#ede8ff;--radius:20px;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;}
+button,a{touch-action:manipulation;}
+.dd-nav{display:flex;align-items:center;gap:12px;padding:12px 20px;background:white;border-bottom:3px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(108,92,231,.08);}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--bg);border:2.5px solid var(--border);color:var(--accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 16px;border-radius:50px;text-decoration:none;transition:all .15s;}
+.dd-back:hover{background:var(--accent);color:white;border-color:var(--accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:17px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--accent);}.dd-logo .f{color:var(--accent3);}
+.page-body{max-width:620px;margin:0 auto;padding:32px 20px 60px;}
+.about-section{border-left:4px solid var(--border);padding-left:20px;margin-bottom:28px;}
+.about-section h3{font-family:'Fredoka One',cursive;font-size:20px;color:var(--text);margin-bottom:8px;}
+.about-section p{font-size:14px;font-weight:600;color:var(--muted);line-height:1.9;}
+.morse-alphabet{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:8px;margin-top:14px;}
+.alpha-item{background:var(--panel);border:2px solid var(--border);padding:10px 8px;text-align:center;border-radius:14px;transition:all .15s;}
+.alpha-item:hover{border-color:var(--accent);background:var(--border);}
+.alpha-letter{font-family:'Fredoka One',cursive;font-size:18px;color:var(--text);display:block;}
+.alpha-morse{font-size:11px;font-weight:800;color:var(--accent4);letter-spacing:2px;display:block;margin-top:2px;}
+</style>
+</head>
+<body>
+<div class="dd-nav">
+  <a class="dd-back" href="index.html">← Home</a>
+  <span class="dd-title">🌐 About Morse Code</span>
+  <a class="dd-logo" href="index.html"><span class="d">dot</span><span class="a">dash</span><span class="f">.fun</span></a>
+</div>
+<div class="page-body">
+  <div class="about-section"><h3>What is Morse Code?</h3><p>Morse code is a method of encoding text using sequences of dots and dashes — short and long signals that represent letters, numbers, and punctuation. Simple in concept, yet powerful enough to cross oceans and save lives.</p></div>
+  <div class="about-section"><h3>The Inventor</h3><p>Samuel Finley Breese Morse was an American painter turned inventor. In the 1830s, after the tragic death of his wife — a death he learned about too late because news traveled so slowly — Morse became obsessed with building a faster way to communicate. That grief drove one of the most important inventions in human history.</p></div>
+  <div class="about-section"><h3>The First Message</h3><p>On May 24, 1844, Morse sent the very first long-distance telegraph message from Washington D.C. to Baltimore, Maryland. The message read: <strong style="color:var(--accent)">"What hath God wrought"</strong> — a quote from the Book of Numbers. The distance was about 40 miles, and it arrived instantly. The world would never be the same.</p></div>
+  <div class="about-section"><h3>How It Spread</h3><p>Telegraph lines rapidly spread across America and Europe throughout the 1840s and 1850s. By 1866, a transatlantic cable connected the United States and Britain, allowing messages to cross the ocean in minutes rather than weeks. Morse code became the universal language of communication for over a century.</p></div>
+  <div class="about-section"><h3>SOS — The Most Famous Signal</h3><p>In 1906, the international distress signal <strong style="color:var(--accent2)">SOS</strong> was adopted — three dots, three dashes, three dots (<strong style="color:var(--accent4)">··· — — — ···</strong>). It was famously used by the Titanic in 1912.</p></div>
+  <div class="about-section"><h3>Morse Code Today</h3><p>While telegraph lines are long gone, morse code never fully disappeared. Amateur (ham) radio operators still use it worldwide. It's used in aviation as a backup communication method. It's also used as an accessibility tool — people with limited mobility can communicate using just two inputs: short and long.</p></div>
+  <div class="about-section"><h3>How to Read It</h3><p>A <strong style="color:var(--accent)">dot (·)</strong> is a short signal. A <strong style="color:var(--accent4)">dash (—)</strong> is a long one — about 3× as long. Letters are separated by a short pause, and words by a longer one. That's it!</p></div>
+  <div class="about-section"><h3>Try It Live</h3><p>Want to chat with someone in morse code in real time? Check out <a href="https://morse.halb.it" target="_blank" style="color:var(--accent);font-weight:800;">morse.halb.it</a> — a live morse code chat where you can tap out messages and talk to real people around the world. 📡</p></div>
+  <div class="about-section"><h3>Full Alphabet</h3><div class="morse-alphabet" id="morseAlphabet"></div></div>
+</div>
+<script>
+const MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',0:'-----'};
+const LETTERS=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','1','2','3','4','5','6','7','8','9','0'];
+function md(c){return c.replace(/\./g,'·').replace(/-/g,'—');}
+document.getElementById('morseAlphabet').innerHTML=LETTERS.map(l=>`<div class="alpha-item"><span class="alpha-letter">${l}</span><span class="alpha-morse">${md(MORSE[l])}</span></div>`).join('');
+</script>
+</body>
+</html>

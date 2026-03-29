@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Speed Challenge — dotdash.fun</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff9f0;--accent:#6c5ce7;--accent2:#ff6b6b;--accent3:#00b894;--accent4:#fdcb6e;--text:#2d2d2d;--muted:#888;--panel:#fff;--border:#ede8ff;--radius:20px;--success:#059669;--success-dim:#d1fae5;--error:#dc2626;--error-dim:#fee2e2;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;overflow:hidden;}
+button,a{touch-action:manipulation;}
+.dd-nav{display:flex;align-items:center;gap:12px;padding:12px 20px;background:white;border-bottom:3px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(108,92,231,.08);}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--bg);border:2.5px solid var(--border);color:var(--accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 16px;border-radius:50px;text-decoration:none;transition:all .15s;}
+.dd-back:hover{background:var(--accent);color:white;border-color:var(--accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:17px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--accent);}.dd-logo .f{color:var(--accent3);}
+.dd-speed-label{margin-left:auto;font-size:12px;font-weight:800;color:var(--accent);background:var(--border);padding:4px 12px;border-radius:20px;}
+.body{max-width:560px;margin:0 auto;padding:20px 16px 60px;display:flex;flex-direction:column;align-items:center;gap:16px;height:calc(100vh - 57px);overflow-y:auto;}
+.stats{display:flex;gap:10px;width:100%;}
+.stat{flex:1;background:var(--panel);border:2.5px solid var(--border);border-radius:var(--radius);padding:14px;text-align:center;}
+.stat-val{font-family:'Fredoka One',cursive;font-size:24px;color:var(--accent);display:block;}
+.stat-label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;}
+.sentence-panel{background:var(--panel);border:2.5px solid var(--border);border-radius:var(--radius);padding:20px;width:100%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.05);}
+.s-label{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:2px;margin-bottom:10px;}
+.letters{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-height:56px;}
+.keyed-out{font-size:24px;letter-spacing:5px;color:var(--accent4);font-weight:800;min-height:34px;text-align:center;}
+.feedback{font-size:12px;min-height:18px;text-align:center;font-weight:800;color:var(--muted);}
+.key-btn{width:100%;height:68px;background:linear-gradient(135deg,#ede9ff,#ddd5ff);border:2.5px solid var(--accent);border-radius:var(--radius);color:var(--accent);font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .08s;user-select:none;-webkit-user-select:none;touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:10px;}
+.key-btn.pressed{background:var(--accent);color:white;transform:scale(.98);}
+.speed-wrap{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:800;color:var(--muted);width:100%;background:var(--panel);border:2px solid var(--border);border-radius:14px;padding:10px 16px;}
+.speed-wrap input{flex:1;accent-color:var(--accent);}
+.speed-val{color:var(--accent);font-weight:800;min-width:48px;text-align:right;}
+</style>
+</head>
+<body>
+<div class="dd-nav">
+  <a class="dd-back" href="games.html">← Games</a>
+  <span class="dd-title">⚡ Speed Challenge</span>
+  <span class="dd-speed-label" id="speedLabel">400ms</span>
+</div>
+<div class="body" id="gameArea">
+  <div class="stats">
+    <div class="stat"><span class="stat-val" id="roundNum">1</span><span class="stat-label">ROUND</span></div>
+    <div class="stat"><span class="stat-val" id="dashDisplay">400ms</span><span class="stat-label">DASH SPEED</span></div>
+    <div class="stat"><span class="stat-val" id="bestRound">—</span><span class="stat-label">BEST</span></div>
+  </div>
+  <div class="sentence-panel">
+    <div class="s-label">KEY THIS SENTENCE</div>
+    <div class="letters" id="letters"></div>
+  </div>
+  <div class="keyed-out" id="keyedOut"></div>
+  <div class="feedback" id="feedback"></div>
+  <button class="key-btn" id="keyBtn">📡 &nbsp; HOLD = — &nbsp; TAP = ·</button>
+  <div style="font-size:11px;font-weight:700;color:var(--muted);text-align:center;">Spacebar works too!</div>
+  <div class="speed-wrap">
+    <span>FAST</span>
+    <input type="range" min="50" max="800" value="400" id="speedSlider" oninput="updateSpeed(this.value)">
+    <span>SLOW</span>
+    <span class="speed-val" id="speedVal">400ms</span>
+  </div>
+</div>
+<div class="body" id="endArea" style="display:none;align-items:center;justify-content:center;">
+  <div style="background:var(--panel);border:2.5px solid var(--border);border-radius:var(--radius);padding:40px 28px;max-width:400px;width:100%;box-shadow:0 8px 32px rgba(108,92,231,.12);text-align:center;">
+    <div style="font-size:60px;margin-bottom:12px;" id="endEmoji">⚡</div>
+    <div style="font-family:'Fredoka One',cursive;font-size:28px;color:var(--text);margin-bottom:8px;" id="endTitle">Game Over!</div>
+    <p style="font-size:13px;font-weight:600;color:var(--muted);line-height:1.8;margin-bottom:20px;" id="endMsg"></p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;">
+      <div style="background:var(--bg);border-radius:14px;padding:14px;"><span style="font-family:'Fredoka One',cursive;font-size:24px;color:var(--accent);display:block;" id="endRounds">0</span><span style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;">ROUNDS</span></div>
+      <div style="background:var(--bg);border-radius:14px;padding:14px;"><span style="font-family:'Fredoka One',cursive;font-size:24px;color:var(--accent4);display:block;" id="endSpeed">400ms</span><span style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:1px;">BEST SPEED</span></div>
+    </div>
+    <button onclick="restart()" style="width:100%;background:var(--accent);border:none;color:white;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;padding:15px;border-radius:14px;cursor:pointer;touch-action:manipulation;margin-bottom:8px;">Try Again →</button>
+    <button onclick="copyScore()" id="copyBtn" style="width:100%;background:var(--bg);border:2px solid var(--border);color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:13px;border-radius:14px;cursor:pointer;touch-action:manipulation;margin-bottom:8px;">📋 Copy Score to Share</button>
+    <a href="games.html" style="display:block;background:var(--bg);border:2px solid var(--border);color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:13px;border-radius:14px;text-align:center;text-decoration:none;">← Back to Games</a>
+  </div>
+</div>
+<script>
+const MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',0:'-----'};
+const SENTENCE='THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG';
+const LETTERS_ARR=SENTENCE.replace(/ /g,'').split('');
+const WORDS_ARR=SENTENCE.split(' ');
+let dashMs=400,round=1,bestRound=0,letterIdx=0,keySeq='',pressStart=0,keyTimer=null,active=true;
+function updateSpeed(v){dashMs=parseInt(v);document.getElementById('speedVal').textContent=v+'ms';document.getElementById('speedLabel').textContent=v+'ms';document.getElementById('dashDisplay').textContent=v+'ms';}
+function renderLetters(){
+  let html='',li=0;
+  WORDS_ARR.forEach((w,wi)=>{
+    if(wi>0)html+='<span style="width:10px;display:inline-block;"></span>';
+    for(const ch of w){
+      const done=li<letterIdx,cur=li===letterIdx;
+      const col=done?'var(--success)':cur?'var(--accent)':'var(--muted)';
+      const sz=cur?'20px':'15px';const fw=cur?'900':'600';
+      html+=`<span style="font-family:'Nunito',sans-serif;font-size:${sz};font-weight:${fw};color:${col};transition:all .15s;">${ch}</span>`;
+      li++;
+    }
+  });
+  document.getElementById('letters').innerHTML=html;
+}
+function updateStats(){
+  document.getElementById('roundNum').textContent=round;
+  document.getElementById('dashDisplay').textContent=dashMs+'ms';
+  document.getElementById('speedLabel').textContent=dashMs+'ms';
+  document.getElementById('bestRound').textContent=bestRound||'—';
+}
+const btn=document.getElementById('keyBtn');
+btn.addEventListener('touchstart',e=>{e.preventDefault();kd();},{passive:false});
+btn.addEventListener('touchend',e=>{e.preventDefault();ku();},{passive:false});
+btn.addEventListener('mousedown',kd);btn.addEventListener('mouseup',ku);btn.addEventListener('mouseleave',ku);
+document.addEventListener('keydown',e=>{if(e.code==='Space'&&active){e.preventDefault();kd();}});
+document.addEventListener('keyup',e=>{if(e.code==='Space'&&active){e.preventDefault();ku();}});
+function kd(){if(pressStart||!active)return;pressStart=Date.now();btn.classList.add('pressed');if(keyTimer){clearTimeout(keyTimer);keyTimer=null;}}
+function ku(){if(!pressStart)return;const dur=Date.now()-pressStart;pressStart=0;btn.classList.remove('pressed');keySeq+=dur>=dashMs?'-':'.';document.getElementById('keyedOut').textContent=keySeq.replace(/\./g,'·').replace(/-/g,'—');if(keyTimer)clearTimeout(keyTimer);keyTimer=setTimeout(commit,dashMs*2);}
+function commit(){
+  const target=LETTERS_ARR[letterIdx];
+  const letter=Object.keys(MORSE).find(k=>MORSE[k]===keySeq);
+  keySeq='';document.getElementById('keyedOut').textContent='';
+  if(letter===target){
+    letterIdx++;renderLetters();
+    document.getElementById('feedback').style.color='var(--success)';
+    document.getElementById('feedback').textContent='✓ '+target;
+    if(letterIdx>=LETTERS_ARR.length){
+      bestRound=round;round++;dashMs=Math.max(10,dashMs-10);letterIdx=0;updateStats();renderLetters();
+      document.getElementById('feedback').style.color='var(--accent)';
+      document.getElementById('feedback').textContent=`🎉 Round ${round-1} done! Now: ${dashMs}ms`;
+    }
+  } else {
+    active=false;showEnd();
+  }
+}
+function showEnd(){
+  const completed=round-1;const bestSpeed=400-(completed*10);
+  document.getElementById('endEmoji').textContent=completed===0?'😬':completed<3?'👍':completed<6?'🔥':'⚡';
+  document.getElementById('endTitle').textContent=completed===0?'Keep Practicing!':'Nice Run!';
+  document.getElementById('endMsg').textContent=completed===0?`You didn't finish a round yet. Keep at it!`:`You completed ${completed} round${completed>1?'s':''}! Best speed: ${bestSpeed}ms. Can you beat it?`;
+  document.getElementById('endRounds').textContent=completed;
+  document.getElementById('endSpeed').textContent=bestSpeed+'ms';
+  document.getElementById('gameArea').style.display='none';
+  document.getElementById('endArea').style.display='flex';
+}
+function restart(){
+  round=1;letterIdx=0;keySeq='';pressStart=0;active=true;
+  document.getElementById('gameArea').style.display='flex';
+  document.getElementById('endArea').style.display='none';
+  updateStats();renderLetters();
+  document.getElementById('keyedOut').textContent='';
+  document.getElementById('feedback').textContent='';
+}
+function copyScore(){
+  const r=document.getElementById('endRounds').textContent;
+  const s=document.getElementById('endSpeed').textContent;
+  const pct=parseInt(r);
+  const emoji=pct===0?'😬':pct<3?'👍':pct<6?'🔥':'⚡';
+  const text=`${emoji} Morse Code Speed Challenge\n\nRounds completed: ${r}\nBest speed: ${s} per dash\n\nCan you beat me? 📡\nhttps://dotdash.fun`;
+  navigator.clipboard.writeText(text).catch(()=>{});
+  const b=document.getElementById('copyBtn');b.textContent='✓ Copied!';b.style.color='var(--success)';
+  setTimeout(()=>{b.textContent='📋 Copy Score to Share';b.style.color='';},2000);
+}
+updateStats();renderLetters();
+</script>
+</body>
+</html>

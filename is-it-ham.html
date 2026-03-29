@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Is It Ham? — dotdash.fun</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff9f0;--accent:#6c5ce7;--accent2:#ff6b6b;--accent3:#00b894;--accent4:#fdcb6e;--text:#2d2d2d;--muted:#888;--panel:#fff;--border:#ede8ff;--radius:20px;--success:#059669;--success-dim:#d1fae5;--error:#dc2626;--error-dim:#fee2e2;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;overflow:hidden;}
+button,a{touch-action:manipulation;}
+.dd-nav{display:flex;align-items:center;gap:12px;padding:12px 20px;background:white;border-bottom:3px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(108,92,231,.08);}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--bg);border:2.5px solid var(--border);color:var(--accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 16px;border-radius:50px;text-decoration:none;transition:all .15s;}
+.dd-back:hover{background:var(--accent);color:white;border-color:var(--accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:17px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--accent);}.dd-logo .f{color:var(--accent3);}
+.dd-extras{margin-left:auto;display:flex;align-items:center;gap:14px;}
+.streak{display:flex;gap:5px;}
+.streak-dot{width:10px;height:10px;border-radius:50%;background:var(--border);transition:background .3s;}
+.streak-dot.on{background:var(--success);}
+.score-chip{font-family:'Fredoka One',cursive;font-size:18px;color:var(--accent);}
+.body{max-width:520px;margin:0 auto;padding:16px 16px 20px;display:flex;flex-direction:column;align-items:center;gap:12px;height:calc(100vh - 57px);overflow-y:auto;}
+.q-counter{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:1px;align-self:flex-start;width:100%;display:flex;justify-content:space-between;}
+.panel{background:var(--panel);border:2.5px solid var(--border);border-radius:var(--radius);padding:24px 20px;width:100%;text-align:center;transition:all .25s;box-shadow:0 4px 16px rgba(0,0,0,.06);}
+.panel.correct{border-color:var(--success);background:var(--success-dim);}
+.panel.wrong{border-color:var(--error);background:var(--error-dim);}
+.panel-emoji{font-size:80px;display:block;margin-bottom:8px;line-height:1;}
+.panel-q{font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);margin-bottom:2px;}
+.panel-hint{font-size:10px;font-weight:800;color:var(--muted);letter-spacing:2px;}
+.feedback{font-size:16px;font-family:'Fredoka One',cursive;min-height:26px;text-align:center;}
+.feedback.correct{color:var(--success);}.feedback.wrong{color:var(--error);}
+.keyed{font-size:24px;letter-spacing:5px;color:var(--accent4);min-height:32px;text-align:center;font-family:'Nunito',sans-serif;font-weight:800;}
+.key-btn{width:100%;height:68px;border-radius:var(--radius);background:linear-gradient(135deg,#ede9ff,#ddd5ff);border:2.5px solid var(--accent);color:var(--accent);font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;transition:all .08s;user-select:none;-webkit-user-select:none;touch-action:manipulation;display:flex;align-items:center;justify-content:center;gap:10px;}
+.key-btn.pressed{background:var(--accent);color:white;transform:scale(.98);}
+.hint-row{font-size:11px;font-weight:700;color:var(--muted);text-align:center;line-height:2;}
+.speed-wrap{display:flex;align-items:center;gap:10px;font-size:11px;font-weight:700;color:var(--muted);width:100%;background:var(--panel);border:2px solid var(--border);border-radius:14px;padding:10px 16px;}
+.speed-wrap input{flex:1;accent-color:var(--accent);}
+.speed-val{color:var(--accent);font-weight:800;min-width:48px;text-align:right;}
+</style>
+</head>
+<body>
+<div class="dd-nav">
+  <a class="dd-back" href="games.html">← Games</a>
+  <span class="dd-title">🐷 Is It Ham?</span>
+  <div class="dd-extras">
+    <div class="streak" id="streak"></div>
+    <span class="score-chip" id="score">0</span>
+  </div>
+</div>
+<div class="body">
+  <div class="q-counter"><span id="qNum">Question 1 / 10</span><span id="timer">0:00</span></div>
+  <div class="panel" id="panel">
+    <span class="panel-emoji" id="emoji">🐷</span>
+    <div class="panel-q" id="question">Is it ham?</div>
+    <div class="panel-hint" id="hint">KEY YES OR NO IN MORSE</div>
+  </div>
+  <div class="feedback" id="feedback"></div>
+  <div class="keyed" id="keyed"></div>
+  <button class="key-btn" id="keyBtn">📡 &nbsp; HOLD = — &nbsp; TAP = ·</button>
+  <div class="hint-row">YES = <strong>·— ·· ···</strong> &nbsp;·&nbsp; NO = <strong>—· ———</strong></div>
+  <div class="speed-wrap">
+    <span>FAST</span>
+    <input type="range" min="50" max="800" value="400" id="speedSlider" oninput="updateSpeed(this.value)">
+    <span>SLOW</span>
+    <span class="speed-val" id="speedVal">400ms</span>
+  </div>
+</div>
+<script>
+const MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',0:'-----'};
+const Qs=[
+  {emoji:'🐷',label:'A pig',isHam:true,reason:'Pigs are the source of ham!'},
+  {emoji:'📻',label:'A ham radio',isHam:true,reason:'Ham radio is amateur radio!'},
+  {emoji:'🥪',label:'A ham sandwich',isHam:true,reason:'That is definitely ham!'},
+  {emoji:'🎙️',label:'A radio mic',isHam:true,reason:'Ham operators use these!'},
+  {emoji:'🐖',label:'A hog',isHam:true,reason:'Hogs become ham!'},
+  {emoji:'📡',label:'An antenna',isHam:true,reason:'Ham radio antennas!'},
+  {emoji:'🥩',label:'Cured meat',isHam:true,reason:'That is what ham is!'},
+  {emoji:'🎭',label:'An actor hamming it up',isHam:true,reason:'To ham it up means to overact!'},
+  {emoji:'🌍',label:'A world map',isHam:true,reason:'Ham radio operators talk worldwide!'},
+  {emoji:'🔊',label:'A speaker',isHam:true,reason:'Ham operators broadcast on speakers!'},
+  {emoji:'🐔',label:'A chicken',isHam:false,reason:'That is chicken, not ham!'},
+  {emoji:'🐟',label:'A fish',isHam:false,reason:'Fish is not ham!'},
+  {emoji:'🥦',label:'Broccoli',isHam:false,reason:'Definitely not ham!'},
+  {emoji:'🦃',label:'A turkey',isHam:false,reason:'Turkey is not ham!'},
+  {emoji:'🐄',label:'A cow',isHam:false,reason:'Cows make beef, not ham!'},
+  {emoji:'🍕',label:'A pizza',isHam:false,reason:'Well... unless it has ham on it!'},
+  {emoji:'🚗',label:'A car',isHam:false,reason:'Definitely not ham!'},
+  {emoji:'🌙',label:'The moon',isHam:false,reason:'The moon is not ham!'},
+  {emoji:'🐶',label:'A dog',isHam:false,reason:'Dogs are not ham!'},
+  {emoji:'✈️',label:'An airplane',isHam:false,reason:'Not ham — unless flying to a pig farm!'},
+  {emoji:'🎸',label:'A guitar',isHam:false,reason:'Not ham, but rock on!'},
+  {emoji:'🌵',label:'A cactus',isHam:false,reason:'Prickly but definitely not ham!'},
+  {emoji:'🐈',label:'A cat',isHam:false,reason:'Cats are not ham — they just eat it!'},
+  {emoji:'🍦',label:'Ice cream',isHam:false,reason:'Sweet, but not ham!'},
+  {emoji:'🦈',label:'A shark',isHam:false,reason:'Not ham, just terrifying!'},
+];
+let dashMs=400,idx=0,order=[],score=0,streak=0,pressStart=0,keySeq='',builtWord='',letTimer=null,subTimer=null,answered=false,elapsed=0,timerInt=null;
+function updateSpeed(v){dashMs=parseInt(v);document.getElementById('speedVal').textContent=v+'ms';}
+function start(){
+  score=0;streak=0;idx=0;elapsed=0;answered=false;builtWord='';keySeq='';
+  order=[...Qs].sort(()=>Math.random()-0.5).slice(0,10);
+  clearInterval(timerInt);
+  timerInt=setInterval(()=>{elapsed++;const m=Math.floor(elapsed/60),s=elapsed%60;document.getElementById('timer').textContent=`${m}:${s.toString().padStart(2,'0')}`;},1000);
+  document.getElementById('panel').innerHTML=`<span class="panel-emoji" id="emoji">🐷</span><div class="panel-q" id="question">Is it ham?</div><div class="panel-hint" id="hint">KEY YES OR NO IN MORSE</div>`;
+  loadQ();
+}
+function loadQ(){
+  answered=false;keySeq='';builtWord='';pressStart=0;
+  if(letTimer){clearTimeout(letTimer);letTimer=null;}
+  if(subTimer){clearTimeout(subTimer);subTimer=null;}
+  document.getElementById('score').textContent=score;
+  document.getElementById('qNum').textContent=`Question ${idx+1} / ${order.length}`;
+  document.getElementById('feedback').textContent='';document.getElementById('feedback').className='feedback';
+  document.getElementById('keyed').textContent='';
+  document.getElementById('keyBtn').classList.remove('pressed');
+  document.getElementById('panel').className='panel';
+  const q=order[idx];
+  document.getElementById('emoji').textContent=q.emoji;
+  document.getElementById('question').textContent=q.label;
+  document.getElementById('hint').textContent='KEY YES OR NO IN MORSE';
+  document.getElementById('streak').innerHTML=Array.from({length:5},(_,i)=>`<div class="streak-dot ${i<streak?'on':''}"></div>`).join('');
+}
+const btn=document.getElementById('keyBtn');
+btn.addEventListener('touchstart',e=>{e.preventDefault();kd();},{passive:false});
+btn.addEventListener('touchend',e=>{e.preventDefault();ku();},{passive:false});
+btn.addEventListener('mousedown',kd);btn.addEventListener('mouseup',ku);btn.addEventListener('mouseleave',ku);
+document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();kd();}});
+document.addEventListener('keyup',e=>{if(e.code==='Space'){e.preventDefault();ku();}});
+function kd(){if(pressStart||answered)return;pressStart=Date.now();btn.classList.add('pressed');if(letTimer){clearTimeout(letTimer);letTimer=null;}if(subTimer){clearTimeout(subTimer);subTimer=null;}}
+function ku(){if(!pressStart)return;const dur=Date.now()-pressStart;pressStart=0;btn.classList.remove('pressed');keySeq+=dur>=dashMs?'-':'.';
+  document.getElementById('keyed').textContent=builtWord+(keySeq?' '+keySeq.replace(/\./g,'·').replace(/-/g,'—'):'');
+  if(letTimer)clearTimeout(letTimer);if(subTimer)clearTimeout(subTimer);
+  letTimer=setTimeout(()=>{const l=Object.keys(MORSE).find(k=>MORSE[k]===keySeq);builtWord+=l||'?';keySeq='';document.getElementById('keyed').textContent=builtWord;subTimer=setTimeout(check,dashMs*3);},dashMs*2);
+}
+function check(){
+  if(answered)return;
+  if(keySeq){const l=Object.keys(MORSE).find(k=>MORSE[k]===keySeq);if(l){builtWord+=l;keySeq='';}}
+  const ans=builtWord.trim().toUpperCase();
+  const isYes=ans.startsWith('Y'),isNo=ans.startsWith('N');
+  if(!isYes&&!isNo){document.getElementById('feedback').textContent='? Key YES or NO!';builtWord='';keySeq='';document.getElementById('keyed').textContent='';return;}
+  answered=true;
+  const q=order[idx];const correct=isYes===q.isHam;
+  const fb=document.getElementById('feedback');
+  if(correct){score+=10+(streak*5);streak=Math.min(streak+1,5);document.getElementById('panel').className='panel correct';fb.textContent='✓ '+(isYes?'YES — ':'NO — ')+q.reason;fb.className='feedback correct';}
+  else{streak=0;document.getElementById('panel').className='panel wrong';fb.textContent='✗ '+(isYes?'That is not ham! ':'That IS ham! ')+q.reason;fb.className='feedback wrong';}
+  document.getElementById('score').textContent=score;
+  setTimeout(()=>{idx++;if(idx>=order.length)showEnd();else loadQ();},2000);
+}
+function showEnd(){
+  clearInterval(timerInt);
+  const m=Math.floor(elapsed/60),s=elapsed%60;
+  document.getElementById('panel').className='panel';
+  document.getElementById('panel').innerHTML=`
+    <span style="font-size:56px;display:block;margin-bottom:10px;">${score>=80?'🏆':score>=50?'🎉':'🐷'}</span>
+    <div class="panel-q">Game Over!</div>
+    <div style="font-size:14px;font-weight:700;color:var(--muted);margin:10px 0;">Score: <strong style="color:var(--accent)">${score}</strong> pts · Time: <strong>${m}:${s.toString().padStart(2,'0')}</strong></div>
+    <button onclick="start()" style="margin-top:8px;background:var(--accent);border:none;color:white;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;padding:13px 24px;border-radius:14px;cursor:pointer;width:100%;touch-action:manipulation;">Play Again →</button>
+    <a href="games.html" style="display:block;margin-top:8px;background:var(--bg);border:2px solid var(--border);color:var(--muted);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;padding:11px;border-radius:14px;text-align:center;text-decoration:none;">← Back to Games</a>`;
+  document.getElementById('feedback').textContent='';document.getElementById('keyed').textContent='';
+}
+start();
+</script>
+</body>
+</html>

@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Morse Word Search — dotdash.fun</title>
+<style>
+
+:root{--bg:#f4f4f8;--panel:#fff;--border:#e0e0ec;--accent:#6c5ce7;--accent-dim:#ede9fd;--amber:#d97706;--amber-dim:#fef3c7;--text:#1a1a2e;--muted:#8888aa;--success:#059669;--success-dim:#d1fae5;--error:#dc2626;--error-dim:#fee2e2;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Mono',monospace;overflow:hidden;}
+button,a{touch-action:manipulation;}
+
+/* Nav */
+.nav{padding:14px 24px;border-bottom:1px solid var(--border);background:rgba(255,255,255,0.96);backdrop-filter:blur(8px);display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;box-shadow:0 1px 8px rgba(0,0,0,0.06);}
+.back-btn{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;padding:7px 16px;border-radius:8px;letter-spacing:1px;text-decoration:none;cursor:pointer;}
+.nav-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--text);}
+
+/* Screens */
+.screen{display:none;position:fixed;top:57px;left:0;right:0;bottom:0;overflow-y:auto;}
+.screen.active{display:block;}
+
+/* Setup */
+.page-body{max-width:640px;margin:0 auto;padding:24px 20px 60px;}
+.section-label{font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:14px;}
+.topic-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;margin-bottom:24px;}
+.topic-card{background:var(--panel);border:2px solid var(--border);border-radius:14px;padding:14px 10px;cursor:pointer;text-align:center;transition:all 0.2s;}
+.topic-card:hover,.topic-card.selected{border-color:var(--accent);background:var(--accent-dim);}
+.topic-emoji{font-size:24px;margin-bottom:6px;display:block;}
+.topic-name{font-family:'Syne',sans-serif;font-size:12px;font-weight:700;color:var(--text);}
+.level-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:24px;}
+.level-card{background:var(--panel);border:2px solid var(--border);border-radius:12px;padding:14px 10px;cursor:pointer;text-align:center;transition:all 0.2s;}
+.level-card:hover,.level-card.selected{border-color:var(--accent);background:var(--accent-dim);}
+.level-name{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.level-desc{font-size:9px;color:var(--muted);}
+.start-btn{background:var(--accent);border:none;color:white;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:2px;padding:14px;border-radius:10px;width:100%;cursor:pointer;}
+.start-btn:disabled{opacity:0.35;cursor:not-allowed;}
+
+/* Game */
+#gameScreen{display:none;position:fixed;top:57px;left:0;right:0;bottom:0;flex-direction:column;}
+#gameScreen.active{display:flex;}
+.game-nav{display:flex;align-items:center;gap:12px;padding:8px 14px;background:rgba(255,255,255,0.96);border-bottom:1px solid var(--border);}
+.game-nav-title{font-family:'Syne',sans-serif;font-size:13px;font-weight:700;color:var(--text);}
+.score-bar{display:flex;gap:14px;align-items:center;font-size:11px;color:var(--muted);letter-spacing:1px;margin-left:auto;}
+.grid-wrap{flex:1;display:flex;align-items:center;justify-content:center;padding:10px;overflow:hidden;}
+.ws-grid{display:grid;gap:2px;user-select:none;-webkit-user-select:none;}
+.ws-cell{display:flex;align-items:center;justify-content:center;background:var(--bg);border-radius:4px;cursor:pointer;text-align:center;line-height:1.2;border:1px solid transparent;padding:1px;}
+.ws-cell:hover{background:var(--accent-dim);}
+.ws-cell.selecting{background:var(--accent-dim);border-color:var(--accent);color:var(--accent);}
+.ws-cell.found-a{background:var(--success-dim);border-color:var(--success);color:var(--success);}
+.ws-cell.found-b{background:var(--amber-dim);border-color:var(--amber);color:var(--amber);}
+.word-panel{background:var(--panel);border-top:1px solid var(--border);padding:14px 16px;flex-shrink:0;}
+.word-list{display:flex;flex-wrap:wrap;gap:6px;}
+.ws-chip{background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:11px;font-family:'Syne',sans-serif;font-weight:700;color:var(--text);}
+.ws-chip.found{background:var(--success-dim);border-color:var(--success);color:var(--success);text-decoration:line-through;}
+
+/* Win */
+#winScreen{display:none;position:fixed;top:57px;left:0;right:0;bottom:0;align-items:center;justify-content:center;padding:20px;}
+#winScreen.active{display:flex;}
+.win-panel{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:40px 32px;max-width:440px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,0.08);text-align:center;}
+.win-emoji{font-size:56px;display:block;margin-bottom:16px;}
+.win-panel h2{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px;}
+.win-panel p{font-size:13px;color:var(--muted);line-height:1.8;margin-bottom:20px;}
+.win-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.win-stat{background:var(--bg);border-radius:10px;padding:14px;}
+.win-stat-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--accent);display:block;}
+.win-stat-label{font-size:10px;color:var(--muted);letter-spacing:1px;}
+.btn-row{display:flex;gap:10px;}
+.btn-primary{background:var(--accent);border:none;color:white;font-family:'DM Mono',monospace;font-size:13px;letter-spacing:1px;padding:14px;border-radius:10px;cursor:pointer;flex:1;}
+.btn-secondary{background:var(--bg);border:1px solid var(--border);color:var(--text);font-family:'DM Mono',monospace;font-size:12px;letter-spacing:1px;padding:11px 18px;border-radius:10px;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;}
+
+/* dotdash.fun shared nav */
+:root{--dd-accent:#6c5ce7;--dd-accent2:#ff6b6b;--dd-accent3:#00b894;--dd-border:#ede8ff;--dd-bg:#fff9f0;}
+.dd-nav{display:flex;align-items:center;gap:12px;padding:12px 20px;background:white;border-bottom:3px solid var(--dd-border);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(108,92,231,.08);}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--dd-bg);border:2.5px solid var(--dd-border);color:var(--dd-accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 16px;border-radius:50px;text-decoration:none;cursor:pointer;transition:all .15s;touch-action:manipulation;}
+.dd-back:hover{background:var(--dd-accent);color:white;border-color:var(--dd-accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:20px;color:#2d2d2d;}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:16px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--dd-accent);}.dd-logo .f{color:var(--dd-accent3);}
+</style>
+</head>
+<body>
+
+<div class="dd-nav" id="mainNav">
+  <a class="dd-back" href="games.html" id="backBtn">← Games</a>
+  <span class="dd-title" id="navTitle">🔍 Morse Word Search</span>
+  <div id="gameNavExtras" style="display:none;align-items:center;gap:10px;margin-left:auto;">
+    <span style="font-size:12px;font-weight:800;color:var(--muted);"><span id="wsFoundCount">0</span>/<span id="wsTotalCount">0</span></span>
+    <span style="font-family:'Fredoka One',cursive;font-size:16px;color:var(--dd-accent);" id="wsScoreVal">0</span>
+    <span style="font-size:11px;font-weight:700;color:var(--muted);" id="wsTimerEl">0:00</span>
+  </div>
+  <a class="dd-logo" href="index.html" style="margin-left:auto;"><span class="d">dot</span><span class="a">dash</span><span class="f">.fun</span></a>
+</div>
+
+<!-- SETUP -->
+<div class="screen active" id="setupScreen">
+  <div class="page-body">
+    <div class="section-label">CHOOSE A TOPIC</div>
+    <div class="topic-grid" id="topicGrid"></div>
+    <div class="section-label">CHOOSE A LEVEL</div>
+    <div class="level-grid" id="levelGrid"></div>
+    <button class="start-btn" id="startBtn" onclick="wsStartGame()" disabled>Start Word Search →</button>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="gameScreen">
+  <div class="grid-wrap"><div class="ws-grid" id="wsGrid"></div></div>
+  <div class="word-panel">
+    <div class="word-list" id="wsWordList"></div>
+  </div>
+</div>
+
+<!-- WIN -->
+<div id="winScreen">
+  <div class="win-panel">
+    <span class="win-emoji" id="wsWinEmoji">🎉</span>
+    <h2>You found them all!</h2>
+    <p id="wsWinMsg"></p>
+    <div class="win-stats">
+      <div class="win-stat"><span class="win-stat-val" id="wsWinTime">0:00</span><span class="win-stat-label">TIME</span></div>
+      <div class="win-stat"><span class="win-stat-val" id="wsWinScore">0</span><span class="win-stat-label">SCORE</span></div>
+    </div>
+    <div class="btn-row">
+      <a class="btn-secondary" href="word-search.html">Change Topic</a>
+      <button class="btn-primary" onclick="wsStartGame()">Play Again →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',0:'-----'};
+const WS_TOPICS=[
+  {id:'animals',name:'Animals',emoji:'🐾',words:['CAT','DOG','FOX','OWL','BEE','ANT','RAM','EMU','GNU','YAK','APE','RAT','BAT','COW','HEN','PIG','JAY','EWE','COD','BOA']},
+  {id:'space',name:'Space',emoji:'🚀',words:['SUN','MOON','STAR','MARS','ORBIT','COMET','NOVA','RING','DARK','VOID','SKY','HALO','DUST','ION','FLUX','BEAM','CORE']},
+  {id:'food',name:'Food',emoji:'🍕',words:['PIE','CAKE','RICE','FISH','MILK','CORN','LIME','BEEF','PEAR','BEAN','PLUM','KALE','YAM','RYE','OAT','FIG','JAM','OIL']},
+  {id:'nature',name:'Nature',emoji:'🌿',words:['OAK','ELM','PINE','BARK','LEAF','VINE','MOSS','FERN','CLAY','DUNE','CAVE','TIDE','MIST','HAIL','GUST','SNOW','RAIN']},
+  {id:'sports',name:'Sports',emoji:'⚽',words:['RUN','KICK','DIVE','JUMP','SWIM','RACE','SHOT','GOAL','PASS','SPIN','GRIP','LIFT','TOSS','PUNT','JAB','LUNGE','DUCK']},
+  {id:'morse',name:'Morse',emoji:'📡',words:['DOT','DASH','CODE','SEND','WAVE','KEY','TAP','HOLD','BEEP','TONE','CALL','ECHO','SIGNAL','RADIO','BAND']},
+];
+const WS_LEVELS=[
+  {id:'easy',name:'Easy',desc:'12×12 · 6 words · →',size:12,count:6,dirs:[[0,1]]},
+  {id:'medium',name:'Medium',desc:'12×12 · 8 words · 4 dirs',size:12,count:8,dirs:[[0,1],[1,0],[1,1],[1,-1]]},
+  {id:'hard',name:'Hard',desc:'16×16 · 12 words · all',size:16,count:12,dirs:[[0,1],[1,0],[1,1],[1,-1],[0,-1],[-1,0],[-1,-1],[-1,1]]},
+];
+let wsTopic=null,wsLevel=null,wsGrid=[],wsPlacements=[],wsFound=new Set(),wsScore=0,wsElapsed=0,wsTimerInt=null,wsSelecting=false,wsSelectStart=null,wsSelectCells=[],wsColorToggle=false;
+
+// Build setup
+document.getElementById('topicGrid').innerHTML=WS_TOPICS.map(t=>`<div class="topic-card" id="wst-${t.id}" onclick="wsPickTopic('${t.id}')"><span class="topic-emoji">${t.emoji}</span><div class="topic-name">${t.name}</div></div>`).join('');
+document.getElementById('levelGrid').innerHTML=WS_LEVELS.map(l=>`<div class="level-card" id="wsl-${l.id}" onclick="wsPickLevel('${l.id}')"><div class="level-name">${l.name}</div><div class="level-desc">${l.desc}</div></div>`).join('');
+
+function wsPickTopic(id){wsTopic=WS_TOPICS.find(t=>t.id===id);document.querySelectorAll('.topic-card').forEach(c=>c.classList.remove('selected'));document.getElementById('wst-'+id).classList.add('selected');wsCheckReady();}
+function wsPickLevel(id){wsLevel=WS_LEVELS.find(l=>l.id===id);document.querySelectorAll('.level-card').forEach(c=>c.classList.remove('selected'));document.getElementById('wsl-'+id).classList.add('selected');wsCheckReady();}
+function wsCheckReady(){document.getElementById('startBtn').disabled=!(wsTopic&&wsLevel);}
+
+function wsStartGame(){
+  if(!wsTopic||!wsLevel)return;
+  wsFound.clear();wsScore=0;wsElapsed=0;wsColorToggle=false;
+  if(wsTimerInt)clearInterval(wsTimerInt);
+  const result=wsGenerate(wsLevel.size,wsTopic.words,wsLevel.dirs,wsLevel.count);
+  wsGrid=result.grid;wsPlacements=result.placements;
+  document.getElementById('wsTotalCount').textContent=wsPlacements.length;
+  document.getElementById('wsFoundCount').textContent=0;
+  document.getElementById('wsScoreVal').textContent=0;
+  document.getElementById('wsTimerEl').textContent='0:00';
+  wsRenderGrid();wsRenderWordList();
+  showScreen('game');
+  wsTimerInt=setInterval(()=>{wsElapsed++;const m=Math.floor(wsElapsed/60),s=wsElapsed%60;document.getElementById('wsTimerEl').textContent=`${m}:${s.toString().padStart(2,'0')}`;},1000);
+}
+
+function showScreen(s){
+  document.getElementById('setupScreen').classList.remove('active');
+  document.getElementById('gameScreen').classList.remove('active');
+  document.getElementById('winScreen').classList.remove('active');
+  document.getElementById('gameNavExtras').style.display='none';
+  document.getElementById('backBtn').href='games.html';
+  if(s==='setup'){document.getElementById('setupScreen').classList.add('active');document.getElementById('navTitle').textContent='Morse Word Search';}
+  else if(s==='game'){document.getElementById('gameScreen').classList.add('active');document.getElementById('gameNavExtras').style.display='flex';document.getElementById('navTitle').textContent=`${wsTopic.name} · ${wsLevel.name}`;document.getElementById('backBtn').href='javascript:void(0)';document.getElementById('backBtn').onclick=()=>{if(wsTimerInt)clearInterval(wsTimerInt);showScreen('setup');};}
+  else if(s==='win'){document.getElementById('winScreen').classList.add('active');}
+}
+
+function wsGenerate(size,words,dirs,count){
+  const g=Array.from({length:size},()=>Array(size).fill(null));const placements=[];
+  const shuffled=[...words].sort(()=>Math.random()-0.5);
+  for(const word of shuffled){if(placements.length>=count)break;const p=wsTryPlace(g,word,size,dirs);if(p)placements.push(p);}
+  const allKeys=Object.keys(MORSE);
+  for(let r=0;r<size;r++)for(let c=0;c<size;c++){if(!g[r][c]){const k=allKeys[Math.floor(Math.random()*allKeys.length)];g[r][c]={morse:MORSE[k],letter:k,isWord:false};}}
+  return{grid:g,placements};
+}
+function wsTryPlace(g,word,size,dirs){
+  for(let a=0;a<150;a++){
+    const[dr,dc]=dirs[Math.floor(Math.random()*dirs.length)];
+    const r0=Math.floor(Math.random()*size),c0=Math.floor(Math.random()*size);
+    const cells=[];let fits=true;
+    for(let i=0;i<word.length;i++){const r=r0+dr*i,c=c0+dc*i;if(r<0||r>=size||c<0||c>=size){fits=false;break;}if(g[r][c]&&g[r][c].letter!==word[i]){fits=false;break;}cells.push({r,c});}
+    if(fits){for(let i=0;i<word.length;i++){const{r,c}=cells[i];g[r][c]={morse:MORSE[word[i]],letter:word[i],isWord:true,word};}return{word,cells};}
+  }
+  return null;
+}
+function wsRenderGrid(){
+  const size=wsLevel.size,el=document.getElementById('wsGrid');
+  const navH=52+40,wordH=60,pad=20;
+  const availH=window.innerHeight-navH-wordH-pad;
+  const availW=window.innerWidth-pad;
+  const cs=Math.floor(Math.min(availH,availW)/size)-2;
+  const fs=Math.max(5,Math.floor(cs/5));
+  el.style.gridTemplateColumns=`repeat(${size},${cs}px)`;el.innerHTML='';
+  for(let r=0;r<size;r++)for(let c=0;c<size;c++){
+    const cell=wsGrid[r][c];const div=document.createElement('div');
+    div.className='ws-cell';div.style.width=cs+'px';div.style.height=cs+'px';div.style.fontSize=fs+'px';
+    div.dataset.r=r;div.dataset.c=c;div.textContent=cell?cell.morse:'';
+    div.addEventListener('mousedown',e=>{e.preventDefault();wsStartSel(r,c);});
+    div.addEventListener('mouseover',()=>{if(wsSelecting)wsContSel(r,c);});
+    div.addEventListener('mouseup',()=>wsEndSel());
+    div.addEventListener('touchstart',e=>{e.preventDefault();wsStartSel(r,c);},{passive:false});
+    div.addEventListener('touchmove',e=>{e.preventDefault();const t=e.touches[0];const o=document.elementFromPoint(t.clientX,t.clientY);if(o?.dataset.r!==undefined)wsContSel(+o.dataset.r,+o.dataset.c);},{passive:false});
+    div.addEventListener('touchend',()=>wsEndSel());
+    el.appendChild(div);
+  }
+  document.addEventListener('mouseup',wsEndSel);
+}
+function wsGetCell(r,c){return document.querySelector(`.ws-cell[data-r="${r}"][data-c="${c}"]`);}
+function wsStartSel(r,c){wsSelecting=true;wsSelectStart={r,c};wsSelectCells=[{r,c}];wsUpdateSelVisual();}
+function wsContSel(r,c){
+  if(!wsSelecting)return;const dr=r-wsSelectStart.r,dc=c-wsSelectStart.c;
+  const len=Math.max(Math.abs(dr),Math.abs(dc));
+  if(len===0){wsSelectCells=[{...wsSelectStart}];wsUpdateSelVisual();return;}
+  if(Math.abs(dr)!==Math.abs(dc)&&dr!==0&&dc!==0)return;
+  const nr=dr===0?0:dr/Math.abs(dr),nc=dc===0?0:dc/Math.abs(dc);
+  wsSelectCells=[];for(let i=0;i<=len;i++)wsSelectCells.push({r:wsSelectStart.r+nr*i,c:wsSelectStart.c+nc*i});
+  wsUpdateSelVisual();
+}
+function wsUpdateSelVisual(){
+  document.querySelectorAll('.ws-cell.selecting').forEach(e=>e.classList.remove('selecting'));
+  wsSelectCells.forEach(({r,c})=>{const e=wsGetCell(r,c);if(e&&!e.classList.contains('found-a')&&!e.classList.contains('found-b'))e.classList.add('selecting');});
+}
+function wsEndSel(){
+  if(!wsSelecting)return;wsSelecting=false;wsCheckSel();
+  document.querySelectorAll('.ws-cell.selecting').forEach(e=>e.classList.remove('selecting'));wsSelectCells=[];
+}
+function wsCheckSel(){
+  if(wsSelectCells.length<2)return;
+  const sel=wsSelectCells.map(({r,c})=>wsGrid[r][c]?.letter).join('');
+  const rev=sel.split('').reverse().join('');
+  for(const p of wsPlacements){
+    if(wsFound.has(p.word))continue;
+    if(sel===p.word||rev===p.word){
+      wsFound.add(p.word);wsColorToggle=!wsColorToggle;
+      const cls=wsColorToggle?'found-a':'found-b';
+      p.cells.forEach(({r,c})=>{const e=wsGetCell(r,c);if(e)e.classList.add(cls);});
+      wsScore+=p.word.length*10+Math.max(0,100-wsElapsed);
+      document.getElementById('wsScoreVal').textContent=wsScore;
+      document.getElementById('wsFoundCount').textContent=wsFound.size;
+      document.querySelector(`#wsWordList [data-word="${p.word}"]`)?.classList.add('found');
+      if(wsFound.size===wsPlacements.length)setTimeout(wsShowWin,500);return;
+    }
+  }
+}
+function wsRenderWordList(){document.getElementById('wsWordList').innerHTML=wsPlacements.map(p=>`<div class="ws-chip" data-word="${p.word}">${p.word}</div>`).join('');}
+function wsShowWin(){
+  if(wsTimerInt){clearInterval(wsTimerInt);wsTimerInt=null;}
+  const m=Math.floor(wsElapsed/60),s=wsElapsed%60,timeStr=`${m}:${s.toString().padStart(2,'0')}`;
+  document.getElementById('wsWinEmoji').textContent=wsElapsed<60?'⚡':'🎉';
+  document.getElementById('wsWinMsg').textContent=`You completed ${wsTopic.name} · ${wsLevel.name} in ${timeStr}!`;
+  document.getElementById('wsWinTime').textContent=timeStr;
+  document.getElementById('wsWinScore').textContent=wsScore;
+  showScreen('win');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Decode It — dotdash.fun</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff9f0;--accent:#6c5ce7;--accent2:#ff6b6b;--accent3:#00b894;--accent4:#fdcb6e;--text:#2d2d2d;--muted:#888;--panel:#fff;--border:#ede8ff;--radius:20px;--success:#059669;--success-dim:#d1fae5;--error:#dc2626;--error-dim:#fee2e2;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;overflow:hidden;}
+button,a{touch-action:manipulation;}
+.dd-nav{display:flex;align-items:center;gap:12px;padding:12px 20px;background:white;border-bottom:3px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(108,92,231,.08);}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--bg);border:2.5px solid var(--border);color:var(--accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 16px;border-radius:50px;text-decoration:none;transition:all .15s;}
+.dd-back:hover{background:var(--accent);color:white;border-color:var(--accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:17px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--accent);}.dd-logo .f{color:var(--accent3);}
+.page-body{max-width:600px;margin:0 auto;padding:28px 20px 60px;}
+.score-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.score-label{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:1px;}
+.score-val{font-family:'Fredoka One',cursive;font-size:20px;color:var(--accent);}
+.bar-wrap{height:8px;background:var(--border);border-radius:4px;margin-bottom:24px;overflow:hidden;}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--accent),#a78bfa);border-radius:4px;transition:width .4s ease;}
+.question-card{background:var(--panel);border:2.5px solid var(--border);border-radius:var(--radius);padding:32px 20px;text-align:center;margin-bottom:20px;box-shadow:0 4px 16px rgba(0,0,0,.05);}
+.q-label{font-size:11px;font-weight:800;color:var(--muted);letter-spacing:3px;margin-bottom:12px;}
+.q-morse{font-family:'Fredoka One',cursive;font-size:clamp(36px,10vw,64px);color:var(--accent4);letter-spacing:8px;line-height:1.2;}
+.options{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.opt-btn{background:var(--panel);border:2.5px solid var(--border);color:var(--text);font-family:'Fredoka One',cursive;font-size:clamp(28px,7vw,42px);padding:22px;cursor:pointer;border-radius:var(--radius);transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.04);}
+.opt-btn:hover{background:var(--border);border-color:var(--accent);transform:translateY(-2px);}
+.opt-btn:active{transform:scale(.97);}
+.opt-btn.correct{background:var(--success-dim);border-color:var(--success);color:var(--success);}
+.opt-btn.wrong{background:var(--error-dim);border-color:var(--error);color:var(--error);}
+</style>
+</head>
+<body>
+<div class="dd-nav">
+  <a class="dd-back" href="games.html">← Games</a>
+  <span class="dd-title">🔡 Decode It</span>
+  <a class="dd-logo" href="index.html"><span class="d">dot</span><span class="a">dash</span><span class="f">.fun</span></a>
+</div>
+<div class="page-body">
+  <div class="score-row">
+    <span class="score-label">SCORE</span>
+    <span class="score-val" id="quizScore">0 / 0</span>
+  </div>
+  <div class="bar-wrap"><div class="bar-fill" id="quizBar" style="width:0%"></div></div>
+  <div class="question-card">
+    <div class="q-label">WHAT LETTER IS THIS?</div>
+    <div class="q-morse" id="quizQ"></div>
+  </div>
+  <div class="options" id="quizOpts"></div>
+</div>
+<script>
+const MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..',1:'.----',2:'..---',3:'...--',4:'....-',5:'.....',6:'-....',7:'--...',8:'---..',9:'----.',0:'-----'};
+const LETTERS=['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','1','2','3','4','5','6','7','8','9','0'];
+function md(c){return c.replace(/\./g,'·').replace(/-/g,'—');}
+let score=0,total=0,answer='',answered=false;
+function next(){
+  answered=false;
+  answer=LETTERS[Math.floor(Math.random()*LETTERS.length)];
+  document.getElementById('quizQ').textContent=md(MORSE[answer]);
+  const pool=LETTERS.filter(l=>l!==answer);
+  const choices=[answer];
+  while(choices.length<4)choices.push(pool.splice(Math.floor(Math.random()*pool.length),1)[0]);
+  choices.sort(()=>Math.random()-0.5);
+  const opts=document.getElementById('quizOpts');
+  opts.innerHTML='';
+  choices.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='opt-btn';b.textContent=c;
+    b.addEventListener('click',()=>pick(c,b));
+    b.addEventListener('touchend',e=>{e.preventDefault();pick(c,b);});
+    opts.appendChild(b);
+  });
+  updateUI();
+}
+function pick(choice,btn){
+  if(answered)return;answered=true;total++;
+  if(choice===answer){score++;btn.classList.add('correct');}
+  else{btn.classList.add('wrong');document.querySelectorAll('.opt-btn').forEach(b=>{if(b.textContent===answer)b.classList.add('correct');});}
+  updateUI();setTimeout(next,1300);
+}
+function updateUI(){
+  document.getElementById('quizScore').textContent=`${score} / ${total}`;
+  document.getElementById('quizBar').style.width=total?(score/total*100)+'%':'0%';
+}
+next();
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Fun & Games — dotdash.fun</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff9f0;--accent:#6c5ce7;--accent2:#ff6b6b;--accent3:#00b894;--accent4:#fdcb6e;--accent5:#0984e3;--text:#2d2d2d;--muted:#888;--panel:#fff;--border:#ede8ff;--radius:20px;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;overflow-x:hidden;}
+button,a{touch-action:manipulation;}
+.dd-nav{display:flex;align-items:center;gap:12px;padding:12px 20px;background:white;border-bottom:3px solid var(--border);position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(108,92,231,.08);}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--bg);border:2.5px solid var(--border);color:var(--accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:7px 16px;border-radius:50px;text-decoration:none;transition:all .15s;}
+.dd-back:hover{background:var(--accent);color:white;border-color:var(--accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:22px;color:var(--text);}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:17px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--accent);}.dd-logo .f{color:var(--accent3);}
+.page-body{max-width:700px;margin:0 auto;padding:28px 16px 60px;}
+.game-cards{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+@media(max-width:480px){.game-cards{grid-template-columns:1fr;}}
+.game-card{background:var(--panel);border:2.5px solid var(--border);border-radius:var(--radius);padding:22px 18px;text-decoration:none;display:block;color:inherit;transition:all .2s;box-shadow:0 3px 12px rgba(0,0,0,.05);position:relative;overflow:hidden;}
+.game-card::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;border-radius:var(--radius) var(--radius) 0 0;}
+.game-card:hover{transform:translateY(-3px);border-color:var(--accent);box-shadow:0 10px 30px rgba(108,92,231,.15);}
+.game-card.span2{grid-column:span 2;}
+@media(max-width:480px){.game-card.span2{grid-column:span 1;}}
+.game-card.unavail{opacity:.5;pointer-events:none;}
+.game-icon{font-size:32px;margin-bottom:10px;display:block;}
+.game-card h3{font-family:'Fredoka One',cursive;font-size:18px;color:var(--text);margin-bottom:6px;}
+.game-card p{font-size:12px;font-weight:600;color:var(--muted);line-height:1.6;}
+.badge{font-size:10px;border-radius:20px;padding:2px 10px;letter-spacing:1px;font-family:'Nunito',sans-serif;font-weight:800;}
+.badge-adv{background:#fef3c7;color:#d97706;}
+.badge-wip{background:#ede9ff;color:var(--accent);}
+.badge-na{background:#fee2e2;color:#dc2626;}
+.more-note{grid-column:span 2;text-align:center;padding:12px 0 4px;font-size:11px;font-weight:700;color:var(--muted);}
+.c1::before{background:#ff6b6b;}.c2::before{background:var(--accent);}.c3::before{background:var(--accent3);}.c4::before{background:#fd79a8;}.c5::before{background:var(--accent5);}.c6::before{background:var(--accent4);}.c7::before{background:#a29bfe;}.c8::before{background:#00cec9;}
+</style>
+</head>
+<body>
+<div class="dd-nav">
+  <a class="dd-back" href="index.html">← Home</a>
+  <span class="dd-title">🎮 Fun & Games</span>
+  <a class="dd-logo" href="index.html"><span class="d">dot</span><span class="a">dash</span><span class="f">.fun</span></a>
+</div>
+<div class="page-body">
+  <div class="game-cards">
+    <a class="game-card c1" href="decode-it.html"><span class="game-icon">🔡</span><h3>Decode It</h3><p>See morse code — guess the letter.</p></a>
+    <a class="game-card c2" href="encode-it.html"><span class="game-icon">📡</span><h3>Encode It</h3><p>See a letter — pick the right morse code.</p></a>
+    <a class="game-card span2 c7" href="decode-by-ear.html"><span class="game-icon">👂</span><h3>Decode By Ear</h3><p>Hear a morse sentence — decode it from memory. Fewer plays and faster speed means higher score!</p></a>
+    <a class="game-card span2 c3" href="word-search.html"><span class="game-icon">🔍</span><h3>Morse Word Search <span class="badge badge-adv">ADVANCED</span></h3><p>Find English words hidden in a grid of morse code. Choose a topic and difficulty!</p></a>
+    <a class="game-card span2 c4" href="is-it-ham.html"><span class="game-icon">🐷</span><h3>Is It Ham?</h3><p>See a picture — key YES or NO in morse. Is it ham... or not? 🎙️</p></a>
+    <a class="game-card span2 c5" href="oil-spill.html"><span class="game-icon">🚁</span><h3>Oil Spill! <span class="badge badge-wip">IN PROGRESS</span></h3><p>You're on a ship — key morse words to send the helicopter before the oil cans spill! 15 levels. 🛢️🌊</p></a>
+    <a class="game-card span2 c6" href="speed-challenge.html"><span class="game-icon">⚡</span><h3>Speed Challenge</h3><p>Key "the quick brown fox jumps over the lazy dog" — every success speeds up by 10ms. How fast can you go?</p></a>
+    <a class="game-card span2 c8" href="morse-blaster.html"><span class="game-icon">🚀</span><h3>Morse Blaster</h3><p>Letters fall from the sky — key them in morse before they stack up and fill the board!</p></a>
+    <div class="game-card unavail span2"><span class="game-icon">🤖</span><h3>Morse Bot Chat <span class="badge badge-na">COMING SOON</span></h3><p>Have a real conversation with an AI in morse code! Key your message, the bot replies.</p></div>
+    <div class="more-note">✦ More games coming soon! ✦</div>
+  </div>
+</div>
+</body>
+</html>

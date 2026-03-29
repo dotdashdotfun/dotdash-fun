@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Morse Blaster — dotdash.fun</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+<style>
+/* dotdash.fun nav */
+:root{--dd-accent:#6c5ce7;--dd-border:#ede8ff;--dd-bg:#fff9f0;--dd-accent2:#ff6b6b;--dd-accent3:#00b894;}
+.dd-nav{display:flex;align-items:center;gap:12px;padding:10px 16px;background:white;border-bottom:3px solid var(--dd-border);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(108,92,231,.08);}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--dd-bg);border:2.5px solid var(--dd-border);color:var(--dd-accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:6px 14px;border-radius:50px;text-decoration:none;transition:all .15s;touch-action:manipulation;}
+.dd-back:hover{background:var(--dd-accent);color:white;border-color:var(--dd-accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:20px;color:#2d2d2d;}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:16px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--dd-accent);}.dd-logo .f{color:var(--dd-accent3);}
+
+/* Game styles */
+:root{
+  --bg:#0a0e1a; --panel:#0d1526; --border:#1a3a5c;
+  --green:#00ff88; --cyan:#00cfff; --yellow:#ffd700; --red:#ff4466;
+  --text:#c8e0f0; --dim:#4a6a8a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;overflow:hidden;}
+#wrapper{display:flex;gap:16px;align-items:flex-start;padding:12px;justify-content:center;}
+.col{display:flex;flex-direction:column;gap:10px;}
+#lcol{width:175px;} #rcol{width:155px;}
+.box{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:11px;}
+.lbl{font-family:'Orbitron',monospace;font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-bottom:6px;}
+.val{font-family:'Orbitron',monospace;font-size:26px;font-weight:900;color:var(--green);text-shadow:0 0 8px #00ff8880;line-height:1;}
+#lv-val{color:var(--cyan);text-shadow:0 0 8px #00cfff80;font-size:20px;}
+#sk-val{color:var(--yellow);text-shadow:0 0 8px #ffd70080;font-size:20px;}
+#st-val{color:var(--red);text-shadow:0 0 8px #ff446680;}
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px 6px;}
+.mrow{display:flex;justify-content:space-between;padding:2px 0;border-bottom:1px solid #0d1e30;font-size:10px;}
+.ml{color:var(--cyan);font-weight:bold;min-width:12px;}
+.mc{color:var(--dim);font-size:9px;letter-spacing:1px;}
+.mrow.hi .ml{color:var(--yellow);text-shadow:0 0 6px #ffd700;}
+.mrow.hi .mc{color:var(--yellow);}
+#gmain{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;}
+#gtitle{font-family:'Fredoka One',cursive;font-size:22px;color:var(--cyan);text-shadow:0 0 10px #00cfff80;letter-spacing:2px;}
+canvas{display:block;border:1px solid var(--border);border-radius:4px;background:#060b14;box-shadow:0 0 30px #00cfff10;}
+#ibar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:8px 16px;display:flex;flex-direction:column;align-items:center;gap:4px;width:100%;}
+#minput{font-size:26px;letter-spacing:5px;min-height:32px;color:var(--green);text-shadow:0 0 8px #00ff8880;}
+#minput.err{color:var(--red);text-shadow:0 0 8px #ff446680;}
+#tgtline{font-family:'Orbitron',monospace;font-size:10px;color:var(--dim);letter-spacing:2px;}
+#tgtline span{color:var(--yellow);font-size:13px;}
+.il{font-size:9px;color:var(--dim);line-height:1.9;}
+.il b{color:var(--text);}
+#lastbox{font-size:11px;color:var(--dim);min-height:16px;letter-spacing:1px;}
+#timebox{font-size:9px;color:var(--dim);line-height:1.8;}
+#ov{position:absolute;inset:0;background:rgba(6,11,20,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;border-radius:4px;z-index:10;}
+#ov h2{font-family:'Fredoka One',cursive;font-size:26px;color:var(--cyan);text-shadow:0 0 10px #00cfff80;}
+.sub{color:var(--dim);font-size:11px;letter-spacing:1px;text-align:center;max-width:260px;line-height:1.9;}
+.bscore{font-family:'Orbitron',monospace;font-size:38px;color:var(--green);text-shadow:0 0 12px #00ff8880;}
+.gbtn{font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;color:#060b14;background:var(--green);border:none;padding:11px 28px;border-radius:20px;cursor:pointer;box-shadow:0 0 10px #00ff8880;}
+.gbtn:hover{opacity:.85;}
+.sbtn{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);background:none;border:1px solid var(--border);padding:5px 16px;border-radius:4px;cursor:pointer;letter-spacing:2px;}
+.sbtn:hover{color:var(--text);}
+#wpmrow{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--dim);}
+#wpmsel{background:#060b14;color:var(--cyan);border:1px solid var(--border);font-family:'Share Tech Mono',monospace;font-size:11px;padding:2px 4px;border-radius:3px;}
+#ezybtn{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);background:#060b14;border:1px solid var(--border);padding:5px 8px;border-radius:4px;cursor:pointer;width:100%;text-align:left;}
+#ezybtn:hover{color:var(--text);}
+#ezybtn.on{color:var(--yellow);border-color:var(--yellow);}
+.hstbl{display:flex;flex-direction:column;gap:3px;width:260px;}
+.hsrow{display:grid;grid-template-columns:24px 1fr auto auto;gap:0 8px;align-items:center;font-size:11px;padding:4px 8px;border-radius:3px;background:rgba(255,255,255,.02);border:1px solid transparent;}
+.hsrow.hsnew{border-color:var(--yellow);background:rgba(255,215,0,.07);color:var(--yellow);text-shadow:0 0 5px #ffd700;}
+.hsr{color:var(--dim);font-size:9px;}
+.hsn{color:var(--cyan);font-family:'Orbitron',monospace;letter-spacing:1px;font-size:10px;}
+.hss{color:var(--green);font-family:'Orbitron',monospace;font-size:12px;}
+.hslv{color:var(--dim);font-size:9px;}
+#nameinput{font-family:'Orbitron',monospace;font-size:15px;letter-spacing:3px;background:#060b14;color:var(--yellow);border:1px solid var(--yellow);padding:7px 12px;border-radius:4px;text-align:center;width:200px;outline:none;}
+</style>
+</head>
+<body>
+<div class="dd-nav">
+  <a class="dd-back" href="games.html">← Games</a>
+  <span class="dd-title">🚀 Morse Blaster</span>
+  <a class="dd-logo" href="index.html"><span class="d">dot</span><span class="a">dash</span><span class="f">.fun</span></a>
+</div>
+<div id="wrapper">
+<!-- LEFT -->
+<div class="col" id="lcol">
+  <div class="box"><div class="lbl">Score</div><div class="val" id="sc-val">0</div></div>
+  <div class="box"><div class="lbl">Level</div><div class="val" id="lv-val">1</div></div>
+  <div class="box"><div class="lbl">Stack</div><div class="val" id="st-val">0</div></div>
+  <div class="box" style="flex:1;overflow:hidden;">
+    <div class="lbl">Morse Ref</div>
+    <div class="mgrid" id="mgrid"></div>
+  </div>
+</div>
+<!-- MAIN -->
+<div id="gmain">
+  <div id="gtitle">MORSE BLASTER</div>
+  <canvas id="cv" width="320" height="460"></canvas>
+  <div id="ibar">
+    <div id="minput">· —</div>
+    <div id="tgtline">TARGET: <span id="tgt">—</span></div>
+  </div>
+  <div id="ov">
+    <h2>MORSE BLASTER</h2>
+    <div class="sub">Use the <b>SPACEBAR</b> to type morse.<br>Quick tap&nbsp;=&nbsp;dot&nbsp;·&nbsp;&nbsp;&nbsp;Hold&nbsp;=&nbsp;dash&nbsp;—<br>Pause = auto-submit the letter.<br><br>Miss a letter and it stacks up.<br>Fill the board = game over!</div>
+    <div id="wpmrow">Speed:
+      <select id="wpmsel">
+        <option value="5">5 WPM (beginner)</option>
+        <option value="10">10 WPM</option>
+        <option value="18">18 WPM</option>
+        <option value="36" selected>36 WPM</option>
+      </select>
+    </div>
+    <button class="gbtn" id="startbtn">START MISSION</button>
+    <button class="sbtn" id="scorebtn">VIEW SCORES</button>
+  </div>
+</div>
+<!-- RIGHT -->
+<div class="col" id="rcol">
+  <div class="box">
+    <div class="lbl">How To Play</div>
+    <div class="il"><b>SPACEBAR</b></div>
+    <div class="il">tap = dot ·</div>
+    <div class="il">hold = dash —</div>
+    <div class="il">pause = auto-submit</div>
+    <div class="il" style="margin-top:6px"><b>ENTER</b> = force submit</div>
+    <div class="il"><b>ESC</b> = clear input</div>
+    <div class="il" style="margin-top:6px">Stack reaches top = game over</div>
+  </div>
+  <div class="box"><div class="lbl">Last Input</div><div id="lastbox">—</div></div>
+  <div class="box"><div class="lbl">Streak</div><div class="val" id="sk-val">0</div></div>
+  <div class="box"><div class="lbl">Timing</div><div id="timebox"></div></div>
+  <div class="box">
+    <div class="lbl">Mode</div>
+    <button id="ezybtn">○ Easy Mode</button>
+    <div class="il" style="margin-top:5px;">Show morse on blocks</div>
+  </div>
+</div>
+</div>
+<script>
+var MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..'};
+var REV={};Object.keys(MORSE).forEach(function(k){REV[MORSE[k]]=k;});
+var LETTERS=Object.keys(MORSE);
+var WPM=36;
+function dit(){return 1000/(WPM*50);}
+function dotMs(){return 200;}
+function gapMs(){return Math.max(600,Math.round(dit()*7));}
+var mgrid=document.getElementById('mgrid');
+LETTERS.forEach(function(l){var row=document.createElement('div');row.className='mrow';row.id='ref-'+l;row.innerHTML='<span class="ml">'+l+'</span><span class="mc">'+MORSE[l].replace(/\./g,'·').replace(/-/g,'—')+'</span>';mgrid.appendChild(row);});
+var cv=document.getElementById('cv');
+var ctx=cv.getContext('2d');
+var W=cv.width;var H=cv.height;
+var NCOLS=5;var BLOCK=50;var COLW=W/NCOLS;var MAXROWS=Math.floor(H/BLOCK);
+var gstate='idle';var falling=[];var stack=[];var score=0;var level=1;var streak=0;var spawnTmr=0;var spawnEvery=180;var dropSpeed=0.6;var particles=[];var easyMode=false;var gameFrames=0;
+function resetState(){falling=[];stack=[];for(var i=0;i<NCOLS;i++)stack.push([]);score=0;level=1;streak=0;spawnTmr=120;spawnEvery=180;dropSpeed=0.6;particles=[];gameFrames=0;}
+var scEl=document.getElementById('sc-val');var lvEl=document.getElementById('lv-val');var stEl=document.getElementById('st-val');var skEl=document.getElementById('sk-val');var minEl=document.getElementById('minput');var tgtEl=document.getElementById('tgt');var lastEl=document.getElementById('lastbox');var timeEl=document.getElementById('timebox');var ovEl=document.getElementById('ov');
+function refreshTiming(){timeEl.innerHTML='dot < '+dotMs()+'ms<br>submit: '+gapMs()+'ms';}
+refreshTiming();
+var curInput='';var keyDownAt=null;var subTimer=null;
+function renderInput(){minEl.textContent=curInput?curInput.replace(/\./g,'·').replace(/-/g,'—'):'· —';minEl.classList.remove('err');}
+function appendSym(sym){curInput+=sym;renderInput();clearTimeout(subTimer);subTimer=setTimeout(doSubmit,gapMs());}
+function doSubmit(){clearTimeout(subTimer);if(!curInput||gstate!=='playing'){curInput='';renderInput();return;}var decoded=REV[curInput];var tgt=getTarget();lastEl.textContent=curInput.replace(/\./g,'·').replace(/-/g,'—')+(decoded?' = '+decoded:' = ?');if(decoded&&tgt&&decoded===tgt.letter){score+=10+streak*2+level*5;streak+=1;scEl.textContent=score;skEl.textContent=streak;explode(tgt.x,tgt.y,'#00ff88');falling=falling.filter(function(b){return b!==tgt;});updateLevel();flashRef(decoded);}else{streak=0;skEl.textContent=0;minEl.classList.add('err');if(tgt)tgt.shakeUntil=Date.now()+300;}curInput='';renderInput();}
+function clearInput(){clearTimeout(subTimer);curInput='';renderInput();}
+function flashRef(l){document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});var row=document.getElementById('ref-'+l);if(row){row.classList.add('hi');setTimeout(function(){row.classList.remove('hi');},600);}}
+window.addEventListener('keydown',function(e){if(e.code==='Space'){e.preventDefault();if(gstate!=='playing')return;if(e.repeat)return;if(keyDownAt===null){keyDownAt=Date.now();clearTimeout(subTimer);}}if(e.code==='Enter'){e.preventDefault();if(gstate!=='playing'){startGame();return;}doSubmit();}if(e.code==='Escape'){e.preventDefault();clearInput();}});
+window.addEventListener('keyup',function(e){if(e.code==='Space'){e.preventDefault();if(gstate!=='playing')return;if(keyDownAt===null)return;var held=Date.now()-keyDownAt;keyDownAt=null;appendSym(held<dotMs()?'.':'-');}});
+document.getElementById('wpmsel').addEventListener('change',function(){WPM=parseInt(this.value,10);refreshTiming();clearInput();this.blur();});
+document.getElementById('ezybtn').addEventListener('click',function(){easyMode=!easyMode;this.textContent=(easyMode?'● ':'○ ')+'Easy Mode';this.classList.toggle('on',easyMode);this.blur();});
+function spawnBlock(){var used={};falling.forEach(function(b){used[b.col]=true;});var free=[];for(var i=0;i<NCOLS;i++){if(!used[i])free.push(i);}var col=free.length?free[Math.floor(Math.random()*free.length)]:Math.floor(Math.random()*NCOLS);falling.push({letter:LETTERS[Math.floor(Math.random()*LETTERS.length)],col:col,x:col*COLW+COLW/2,y:-BLOCK/2,speed:dropSpeed+Math.random()*0.15,shakeUntil:0});}
+function getTarget(){if(!falling.length)return null;return falling.reduce(function(b,a){return a.y>b.y?a:b;},falling[0]);}
+function landY(col){return H-BLOCK*stack[col].length-BLOCK/2;}
+function maxStack(){return Math.max.apply(null,[0].concat(stack.map(function(c){return c.length;})));}
+function updateLevel(){var nl=Math.floor(score/100)+1;if(nl!==level){level=Math.min(nl,10);dropSpeed=0.6+(level-1)*0.15;spawnEvery=Math.max(60,180-(level-1)*15);lvEl.textContent=level;}}
+function explode(x,y,color){for(var i=0;i<24;i++){var a=(Math.PI*2*i/24)+Math.random()*0.3;var s=2+Math.random()*4;particles.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:1.5+Math.random()*2.5,color:color,life:30+Math.random()*20,max:50});}}
+function drawBg(){ctx.fillStyle='#060b14';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#0d1e30';ctx.lineWidth=1;for(var c=1;c<NCOLS;c++){ctx.beginPath();ctx.moveTo(c*COLW,0);ctx.lineTo(c*COLW,H);ctx.stroke();}}
+function drawBlock(letter,x,y,isTarget,isStacked){var bx=x-COLW/2+2,by=y-BLOCK/2+2,bw=COLW-4,bh=BLOCK-4;var color,glow,fill;if(isStacked){color='#2a4a6a';glow='#1a3a5a';fill='rgba(10,30,60,.7)';}else if(isTarget){color='#ffd700';glow='#ffd700';fill='rgba(255,215,0,.08)';}else{color='#00cfff';glow='#00cfff';fill='rgba(0,207,255,.05)';}ctx.save();ctx.shadowBlur=isStacked?3:(isTarget?16:8);ctx.shadowColor=glow;ctx.fillStyle=fill;ctx.fillRect(bx,by,bw,bh);ctx.strokeStyle=color;ctx.lineWidth=isTarget?2:1;ctx.strokeRect(bx,by,bw,bh);ctx.fillStyle=color;ctx.shadowBlur=isStacked?2:(isTarget?10:5);ctx.font='bold 26px Orbitron,monospace';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(letter,x,isStacked?y:y-(easyMode?5:0));if(!isStacked&&easyMode){var morse=MORSE[letter].replace(/\./g,'·').replace(/-/g,'—');ctx.shadowBlur=0;ctx.font='9px Share Tech Mono,monospace';ctx.fillStyle=isTarget?'rgba(255,215,0,.7)':'rgba(0,207,255,.5)';ctx.fillText(morse,x,y+BLOCK/2-6);}ctx.restore();}
+function drawStack(){for(var col=0;col<NCOLS;col++){for(var row=0;row<stack[col].length;row++){drawBlock(stack[col][row],col*COLW+COLW/2,H-BLOCK*row-BLOCK/2,false,true);}}}
+function drawParticles(){particles=particles.filter(function(p){return p.life>0;});particles.forEach(function(p){ctx.save();ctx.globalAlpha=p.life/p.max;ctx.fillStyle=p.color;ctx.shadowBlur=5;ctx.shadowColor=p.color;ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fill();ctx.restore();p.x+=p.vx;p.y+=p.vy;p.vy+=0.12;p.life--;});}
+function gameLoop(){requestAnimationFrame(gameLoop);if(gstate!=='playing')return;drawBg();drawStack();spawnTmr++;gameFrames++;if(spawnTmr>=spawnEvery){spawnTmr=0;spawnBlock();}var timeBoost=(gameFrames/600)*0.06;var tgt=getTarget();for(var i=falling.length-1;i>=0;i--){var b=falling[i];var stopY=landY(b.col);if(b.y>=stopY){stack[b.col].push(b.letter);falling.splice(i,1);stEl.textContent=maxStack();if(stack[b.col].length>=MAXROWS){triggerGameOver();return;}}else{b.y+=b.speed+timeBoost;var sx=b.x+(Date.now()<b.shakeUntil?(Math.random()-.5)*7:0);drawBlock(b.letter,sx,b.y,b===tgt,false);}}var cur=getTarget();if(cur){tgtEl.textContent=cur.letter;document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});var ref=document.getElementById('ref-'+cur.letter);if(ref)ref.classList.add('hi');}else{tgtEl.textContent='—';document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});}drawParticles();}
+var HS_KEY='morseBlasterHS';var MAX_HS=8;
+function loadScores(){try{return JSON.parse(localStorage.getItem(HS_KEY))||[];}catch(e){return[];}}
+function saveScore(name,sc,lv){var scores=loadScores();scores.push({name:name.toUpperCase().slice(0,12),score:sc,level:lv,date:new Date().toLocaleDateString()});scores.sort(function(a,b){return b.score-a.score;});if(scores.length>MAX_HS)scores.length=MAX_HS;localStorage.setItem(HS_KEY,JSON.stringify(scores));return scores;}
+function isHighScore(sc){var s=loadScores();return s.length<MAX_HS||sc>s[s.length-1].score;}
+function renderBoard(scores,highlight){if(!scores.length)return '<div class="sub" style="color:var(--dim)">No scores yet!</div>';var medals=['🥇','🥈','🥉'];var html='<div class="hstbl">';scores.forEach(function(s,i){var isNew=highlight!==undefined&&i===scores.findIndex(function(x){return x.score===highlight;})&&s.score===highlight;html+='<div class="hsrow'+(isNew?' hsnew':'')+'"><span class="hsr">'+(medals[i]||('#'+(i+1)))+'</span><span class="hsn">'+s.name+'</span><span class="hss">'+s.score+'</span><span class="hslv">LV'+s.level+'</span></div>';});html+='</div>';return html;}
+function showStart(){ovEl.style.display='flex';ovEl.innerHTML='<h2>MORSE BLASTER</h2><div class="sub">Use the <b>SPACEBAR</b> to type morse.<br>Quick tap = dot · &nbsp; Hold = dash —<br>Pause = auto-submit the letter.<br><br>Miss a letter and it stacks up.<br>Fill the board = game over!</div><div id="wpmrow">Speed: <select id="wpmsel" onchange="WPM=parseInt(this.value,10);refreshTiming();clearInput();this.blur();"><option value="5">5 WPM (beginner)</option><option value="10">10 WPM</option><option value="18">18 WPM</option><option value="36" selected>36 WPM</option></select></div><button class="gbtn" onclick="startGame()">START MISSION</button><button class="sbtn" onclick="showScores()">VIEW SCORES</button>';}
+function showScores(){var scores=loadScores();ovEl.style.display='flex';ovEl.innerHTML='<h2>LEADERBOARD</h2>'+renderBoard(scores)+'<button class="gbtn" onclick="showStart()">BACK</button>';}
+function startGame(){resetState();scEl.textContent='0';lvEl.textContent='1';stEl.textContent='0';skEl.textContent='0';tgtEl.textContent='—';lastEl.textContent='—';clearInput();ovEl.style.display='none';gstate='playing';}
+function triggerGameOver(){gstate='gameover';var fs=score,fl=level,fk=streak;if(isHighScore(fs)){ovEl.style.display='flex';ovEl.innerHTML='<h2>GAME OVER</h2><div class="bscore">'+fs+'</div><div class="sub" style="color:var(--green)">✦ NEW HIGH SCORE ✦</div><div class="sub">Enter your callsign:</div><input id="nameinput" class="nameinput" maxlength="12" placeholder="YOUR NAME" style="font-family:Orbitron,monospace;font-size:15px;letter-spacing:3px;background:#060b14;color:var(--yellow);border:1px solid var(--yellow);padding:7px 12px;border-radius:4px;text-align:center;width:200px;outline:none;"/><button class="gbtn" id="subbtn">SUBMIT</button>';var ni=document.getElementById('nameinput');ni.focus();function doSave(){var name=ni.value.trim()||'ANON';var scores=saveScore(name,fs,fl);ovEl.innerHTML='<h2>LEADERBOARD</h2>'+renderBoard(scores,fs)+'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button><button class="sbtn" onclick="showStart()">MAIN MENU</button>';}document.getElementById('subbtn').onclick=doSave;ni.addEventListener('keydown',function(e){if(e.key==='Enter')doSave();});}else{var scores=loadScores();ovEl.style.display='flex';ovEl.innerHTML='<h2>GAME OVER</h2><div class="bscore">'+fs+'</div><div class="sub">Level: '+fl+' | Streak: '+fk+'</div>'+renderBoard(scores)+'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button><button class="sbtn" onclick="showStart()">MAIN MENU</button>';}}
+document.getElementById('startbtn').onclick=startGame;
+document.getElementById('scorebtn').onclick=showScores;
+document.addEventListener('mousedown',function(e){if(gstate==='playing'&&(e.target.tagName==='BUTTON'||e.target.tagName==='SELECT')){e.preventDefault();}},true);
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
