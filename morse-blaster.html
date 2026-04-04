@@ -6,15 +6,8 @@
 <title>Morse Blaster — dotdash.fun</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
 <style>
-:root{--dd-accent:#6c5ce7;--dd-border:#ede8ff;--dd-bg:#fff9f0;--dd-accent2:#ff6b6b;--dd-accent3:#00b894;}
-.dd-nav{display:flex;align-items:center;gap:12px;padding:10px 16px;background:white;border-bottom:3px solid var(--dd-border);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(108,92,231,.08);}
-.dd-back{display:flex;align-items:center;gap:6px;background:var(--dd-bg);border:2.5px solid var(--dd-border);color:var(--dd-accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:6px 14px;border-radius:50px;text-decoration:none;transition:all .15s;touch-action:manipulation;}
-.dd-back:hover{background:var(--dd-accent);color:white;border-color:var(--dd-accent);}
-.dd-title{font-family:'Fredoka One',cursive;font-size:20px;color:#2d2d2d;}
-.dd-logo{font-family:'Fredoka One',cursive;font-size:16px;margin-left:auto;text-decoration:none;}
-.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--dd-accent);}.dd-logo .f{color:var(--dd-accent3);}
-
 :root{
+  --dd-accent:#6c5ce7;--dd-border:#ede8ff;--dd-bg:#fff9f0;--dd-accent2:#ff6b6b;--dd-accent3:#00b894;
   --bg:#0a0e1a;--panel:#0d1526;--border:#1a3a5c;
   --green:#00ff88;--cyan:#00cfff;--yellow:#ffd700;--red:#ff4466;
   --text:#c8e0f0;--dim:#4a6a8a;
@@ -23,15 +16,15 @@
 html,body{height:100%;height:100dvh;overflow:hidden;}
 body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monospace;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom);}
 
-#wrapper{display:flex;gap:10px;align-items:flex-start;padding:8px;justify-content:center;flex:1;min-height:0;overflow:hidden;}
-.col{display:flex;flex-direction:column;gap:8px;height:100%;}
-#lcol{width:155px;} #rcol{width:140px;}
-@media(max-width:600px){
-  #lcol,#rcol{display:none;}
-  #wrapper{padding:4px;}
-  #gmain{width:100%;}
-  #gtitle{font-size:14px;}
-}
+/* Nav */
+.dd-nav{display:flex;align-items:center;gap:12px;padding:10px 16px;background:white;border-bottom:3px solid var(--dd-border);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(108,92,231,.08);flex-shrink:0;}
+.dd-back{display:flex;align-items:center;gap:6px;background:var(--dd-bg);border:2.5px solid var(--dd-border);color:var(--dd-accent);font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;padding:6px 14px;border-radius:50px;text-decoration:none;transition:all .15s;touch-action:manipulation;}
+.dd-back:hover{background:var(--dd-accent);color:white;border-color:var(--dd-accent);}
+.dd-title{font-family:'Fredoka One',cursive;font-size:20px;color:#2d2d2d;}
+.dd-logo{font-family:'Fredoka One',cursive;font-size:16px;margin-left:auto;text-decoration:none;}
+.dd-logo .d{color:#ff6b6b;}.dd-logo .a{color:var(--dd-accent);}.dd-logo .f{color:var(--dd-accent3);}
+
+/* Shared components */
 .box{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px;}
 .lbl{font-family:'Orbitron',monospace;font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;}
 .val{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--green);text-shadow:0 0 8px #00ff8880;line-height:1;}
@@ -44,19 +37,11 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
 .mc{color:var(--dim);font-size:9px;letter-spacing:1px;}
 .mrow.hi .ml{color:var(--yellow);text-shadow:0 0 6px #ffd700;}
 .mrow.hi .mc{color:var(--yellow);}
-
-#gmain{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0;overflow:hidden;}
-#gtitle{font-family:'Fredoka One',cursive;font-size:18px;color:var(--cyan);text-shadow:0 0 10px #00cfff80;letter-spacing:2px;flex-shrink:0;}
-canvas{display:block;border:1px solid var(--border);border-radius:4px;background:#060b14;box-shadow:0 0 30px #00cfff10;flex-shrink:0;}
-#ibar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;flex-shrink:0;}
-#minput{font-size:22px;letter-spacing:5px;min-height:28px;color:var(--green);text-shadow:0 0 8px #00ff8880;}
-#minput.err{color:var(--red);text-shadow:0 0 8px #ff446680;}
-#tgtline{font-family:'Orbitron',monospace;font-size:9px;color:var(--dim);letter-spacing:2px;}
-#tgtline span{color:var(--yellow);font-size:12px;}
 .il{font-size:9px;color:var(--dim);line-height:1.8;}
 .il b{color:var(--text);}
 #lastbox{font-size:10px;color:var(--dim);min-height:14px;letter-spacing:1px;}
 
+/* Overlay */
 #ov{position:absolute;inset:0;background:rgba(6,11,20,.95);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:4px;z-index:10;overflow-y:auto;padding:16px 8px;}
 #ov h2{font-family:'Fredoka One',cursive;font-size:24px;color:var(--cyan);text-shadow:0 0 10px #00cfff80;}
 .sub{color:var(--dim);font-size:10px;letter-spacing:1px;text-align:center;max-width:240px;line-height:1.9;}
@@ -66,42 +51,24 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 .sbtn{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);background:none;border:1px solid var(--border);padding:5px 16px;border-radius:4px;cursor:pointer;letter-spacing:2px;touch-action:manipulation;}
 .sbtn:hover{color:var(--text);}
 
-/* Dash slider in overlay */
+/* Sliders */
+input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:var(--border);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px #00cfff80;}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px #00cfff80;border:none;}
 #wpmrow{display:flex;flex-direction:column;align-items:center;gap:5px;font-size:10px;color:var(--dim);}
 #wpmrow label{color:var(--cyan);font-family:'Orbitron',monospace;font-size:8px;letter-spacing:2px;}
-#dashSlider{-webkit-appearance:none;appearance:none;width:180px;height:6px;border-radius:3px;background:var(--border);outline:none;}
-#dashSlider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px #00cfff80;}
-#dashSlider::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--cyan);cursor:pointer;box-shadow:0 0 8px #00cfff80;border:none;}
+#dashSlider{width:180px;}
 #dashVal{color:var(--cyan);font-family:'Orbitron',monospace;font-size:12px;}
 
-/* Right col dash slider */
-#ezybtn{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);background:#060b14;border:1px solid var(--border);padding:5px 8px;border-radius:4px;cursor:pointer;width:100%;text-align:left;}
-#ezybtn:hover{color:var(--text);}
-#ezybtn.on{color:var(--yellow);border-color:var(--yellow);}
-#gapSliderR{-webkit-appearance:none;appearance:none;width:100%;height:5px;border-radius:3px;background:var(--border);outline:none;display:block;margin:4px 0;}
-#gapSliderR::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--cyan);cursor:pointer;}
-#gapSliderR::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--cyan);cursor:pointer;border:none;}
-#gapValR{font-family:'Orbitron',monospace;font-size:10px;color:var(--cyan);}
+/* Easy mode button */
+.ezybtn{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);background:#060b14;border:1px solid var(--border);padding:5px 8px;border-radius:4px;cursor:pointer;text-align:left;touch-action:manipulation;}
+.ezybtn:hover{color:var(--text);}
+.ezybtn.on{color:var(--yellow);border-color:var(--yellow);}
 
 /* Pause button */
-#pauseBtn{display:none;position:absolute;top:30px;right:4px;background:rgba(6,11,20,.85);border:1px solid var(--border);color:var(--dim);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;padding:4px 8px;border-radius:4px;cursor:pointer;z-index:20;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+#pauseBtn{display:none;position:absolute;top:6px;right:6px;background:rgba(6,11,20,.85);border:1px solid var(--border);color:var(--dim);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;padding:4px 8px;border-radius:4px;cursor:pointer;z-index:20;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
 #pauseBtn.visible{display:block;}
 #pauseBtn:hover{color:var(--text);border-color:var(--text);}
-
-/* Mobile clicker bar */
-#clickerBar{display:none;align-items:center;justify-content:center;padding:8px;background:var(--panel);border-top:1px solid var(--border);gap:10px;flex-shrink:0;}
-#clickerBar.visible{display:flex;}
-#morseBtn{background:var(--panel);border:2px solid var(--cyan);border-radius:50%;width:72px;height:72px;color:var(--cyan);font-size:28px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px #00cfff30;transition:background .05s,box-shadow .05s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
-#morseBtn.pressed{background:rgba(0,207,255,0.18);box-shadow:0 0 24px #00cfff80;}
-.clkHint{font-size:8px;color:var(--dim);line-height:1.5;text-align:center;}
-
-/* Mobile stats shown in clicker bar */
-#mobileStats{display:none;flex-direction:column;gap:4px;font-family:'Orbitron',monospace;}
-@media(max-width:600px){
-  #mobileStats{display:flex;}
-  #clickerBar{padding:6px 12px;gap:16px;}
-  #morseBtn{width:80px;height:80px;font-size:32px;}
-}
 
 /* Leaderboard */
 .live-badge{display:inline-block;background:#ff4466;color:white;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;padding:2px 5px;border-radius:3px;margin-left:4px;animation:blink 1.2s infinite;}
@@ -114,6 +81,102 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 .hss{color:var(--green);font-family:'Orbitron',monospace;font-size:11px;}
 .hslv{color:var(--dim);font-size:9px;}
 #nameinput{font-family:'Orbitron',monospace;font-size:14px;letter-spacing:3px;background:#060b14;color:var(--yellow);border:1px solid var(--yellow);padding:7px 12px;border-radius:4px;text-align:center;width:190px;outline:none;}
+
+/* ── DESKTOP LAYOUT ── */
+#wrapper{display:flex;gap:10px;align-items:flex-start;padding:8px;justify-content:center;flex:1;min-height:0;overflow:hidden;}
+.col{display:flex;flex-direction:column;gap:8px;height:100%;}
+#lcol{width:155px;}#rcol{width:140px;}
+#gapSliderR{width:100%;display:block;margin:4px 0;}
+#gapValR{font-family:'Orbitron',monospace;font-size:10px;color:var(--cyan);}
+#gmain{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:0;overflow:hidden;}
+#gtitle{font-family:'Fredoka One',cursive;font-size:18px;color:var(--cyan);text-shadow:0 0 10px #00cfff80;letter-spacing:2px;flex-shrink:0;}
+canvas{display:block;border:1px solid var(--border);border-radius:4px;background:#060b14;box-shadow:0 0 30px #00cfff10;flex-shrink:0;}
+#ibar{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:6px 14px;display:flex;flex-direction:column;align-items:center;gap:2px;width:100%;flex-shrink:0;}
+#minput{font-size:22px;letter-spacing:5px;min-height:28px;color:var(--green);text-shadow:0 0 8px #00ff8880;}
+#minput.err{color:var(--red);text-shadow:0 0 8px #ff446680;}
+#tgtline{font-family:'Orbitron',monospace;font-size:9px;color:var(--dim);letter-spacing:2px;}
+#tgtline span{color:var(--yellow);font-size:12px;}
+
+/* Desktop clicker bar (hidden on desktop) */
+#clickerBar{display:none;flex-shrink:0;}
+#clickerBar.visible{display:flex;}
+#morseBtn{background:var(--panel);border:2px solid var(--cyan);border-radius:50%;width:72px;height:72px;color:var(--cyan);font-size:22px;font-family:'Share Tech Mono',monospace;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px #00cfff30;transition:background .05s,box-shadow .05s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
+#morseBtn.pressed{background:rgba(0,207,255,0.18);box-shadow:0 0 24px #00cfff80;}
+
+/* ── MOBILE LAYOUT (≤600px) ── */
+@media(max-width:600px){
+  /* Hide desktop side cols */
+  #lcol,#rcol{display:none;}
+  /* Hide desktop title & ibar — we have our own */
+  #gtitle{display:none;}
+  #ibar{display:none;}
+  #wrapper{padding:0;gap:0;}
+  #gmain{gap:0;}
+  canvas{border-left:none;border-right:none;border-radius:0;}
+
+  /* Mobile bottom panel */
+  #clickerBar{
+    display:none; /* shown via .visible */
+    flex-direction:column;
+    background:var(--panel);
+    border-top:2px solid var(--border);
+    padding:0;
+    gap:0;
+    width:100%;
+  }
+  #clickerBar.visible{display:flex;}
+
+  /* Top row: stats */
+  #mob-stats{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 14px;border-bottom:1px solid var(--border);
+    font-family:'Orbitron',monospace;font-size:11px;
+  }
+  .mob-stat{display:flex;flex-direction:column;align-items:center;gap:1px;}
+  .mob-stat-lbl{font-size:7px;color:var(--dim);letter-spacing:2px;}
+  .mob-stat-val{font-size:16px;font-weight:900;line-height:1;}
+
+  /* Middle row: input display + target */
+  #mob-mid{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:6px 14px;border-bottom:1px solid var(--border);gap:10px;
+  }
+  #mob-minput{font-size:20px;letter-spacing:4px;color:var(--green);text-shadow:0 0 8px #00ff8880;flex:1;font-family:'Share Tech Mono',monospace;min-height:26px;}
+  #mob-minput.err{color:var(--red);text-shadow:0 0 8px #ff446680;}
+  #mob-target{display:flex;flex-direction:column;align-items:center;gap:1px;}
+  #mob-tgt-lbl{font-size:7px;color:var(--dim);letter-spacing:2px;font-family:'Orbitron',monospace;}
+  #mob-tgt-letter{font-family:'Orbitron',monospace;font-size:22px;color:var(--yellow);text-shadow:0 0 8px #ffd70080;line-height:1;}
+  #mob-tgt-morse{font-size:11px;color:var(--cyan);letter-spacing:2px;font-family:'Share Tech Mono',monospace;}
+
+  /* Bottom row: controls */
+  #mob-controls{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 14px;gap:10px;
+  }
+  #mob-left{display:flex;flex-direction:column;gap:6px;flex:1;}
+
+  /* Mobile easy mode button */
+  #mob-ezybtn{
+    font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);
+    background:#060b14;border:1px solid var(--border);
+    padding:5px 8px;border-radius:4px;cursor:pointer;text-align:left;
+    touch-action:manipulation;width:100%;
+  }
+  #mob-ezybtn.on{color:var(--yellow);border-color:var(--yellow);}
+
+  /* Mobile slider row */
+  #mob-slider-row{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--dim);}
+  #mob-slider-row input{flex:1;height:5px;}
+  #mob-dash-val{font-family:'Orbitron',monospace;font-size:9px;color:var(--cyan);min-width:32px;text-align:right;}
+
+  /* Big morse button */
+  #morseBtn{width:86px;height:86px;font-size:13px;border-radius:50%;flex-shrink:0;}
+  #mob-btn-col{display:flex;flex-direction:column;align-items:center;gap:2px;}
+  #mob-btn-hint{font-size:8px;color:var(--dim);text-align:center;line-height:1.4;}
+
+  /* Pause btn position on mobile */
+  #pauseBtn{top:4px;right:4px;}
+}
 </style>
 </head>
 <body>
@@ -140,7 +203,7 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
   <canvas id="cv" width="300" height="400"></canvas>
   <button id="pauseBtn">❚❚ PAUSE</button>
   <div id="ibar">
-    <div id="minput">· —</div>
+    <div id="minput">TAP HERE</div>
     <div id="tgtline">TARGET: <span id="tgt">—</span></div>
   </div>
   <div id="ov">
@@ -184,18 +247,37 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 
 <!-- Mobile clicker bar -->
 <div id="clickerBar">
-  <div id="mobileStats">
-    <div style="font-size:9px;color:var(--dim);letter-spacing:2px;">SCORE &nbsp;<span style="color:var(--green);font-size:13px;" id="sc-val-m">0</span></div>
-    <div style="font-size:9px;color:var(--dim);letter-spacing:2px;">LV &nbsp;<span style="color:var(--cyan);font-size:13px;" id="lv-val-m">1</span> &nbsp; STK &nbsp;<span style="color:var(--red);font-size:13px;" id="st-val-m">0</span></div>
+  <!-- Row 1: Stats -->
+  <div id="mob-stats">
+    <div class="mob-stat"><span class="mob-stat-lbl">SCORE</span><span class="mob-stat-val" style="color:var(--green);text-shadow:0 0 6px #00ff8880;" id="sc-val-m">0</span></div>
+    <div class="mob-stat"><span class="mob-stat-lbl">LEVEL</span><span class="mob-stat-val" style="color:var(--cyan);text-shadow:0 0 6px #00cfff80;" id="lv-val-m">1</span></div>
+    <div class="mob-stat"><span class="mob-stat-lbl">STACK</span><span class="mob-stat-val" style="color:var(--red);text-shadow:0 0 6px #ff446680;" id="st-val-m">0</span></div>
+    <div class="mob-stat"><span class="mob-stat-lbl">STREAK</span><span class="mob-stat-val" style="color:var(--yellow);text-shadow:0 0 6px #ffd70080;" id="sk-val-m">0</span></div>
   </div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
-    <div id="morseBtn">·—</div>
-    <div class="clkHint">tap=· hold=—</div>
+  <!-- Row 2: Input display + target -->
+  <div id="mob-mid">
+    <div id="mob-minput">TAP HERE</div>
+    <div id="mob-target">
+      <span id="mob-tgt-lbl">TARGET</span>
+      <span id="mob-tgt-letter">—</span>
+      <span id="mob-tgt-morse"></span>
+    </div>
   </div>
-  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
-    <div style="font-size:9px;color:var(--dim);letter-spacing:1px;">TARGET</div>
-    <div style="font-family:'Orbitron',monospace;font-size:20px;color:var(--yellow);text-shadow:0 0 8px #ffd70080;" id="tgt-m">—</div>
-    <div style="font-size:12px;color:var(--cyan);letter-spacing:2px;" id="morse-hint-m"></div>
+  <!-- Row 3: Controls + big button -->
+  <div id="mob-controls">
+    <div id="mob-left">
+      <button id="mob-ezybtn" class="ezybtn">○ Easy Mode</button>
+      <div id="mob-slider-row">
+        <span>FAST</span>
+        <input type="range" id="mobDashSlider" min="50" max="400" value="200" step="1">
+        <span>SLOW</span>
+        <span id="mob-dash-val">200ms</span>
+      </div>
+    </div>
+    <div id="mob-btn-col">
+      <div id="morseBtn">TAP HERE</div>
+      <div id="mob-btn-hint">tap = · &nbsp; hold = —</div>
+    </div>
   </div>
 </div>
 
@@ -273,24 +355,30 @@ function resetState(){
 }
 
 var scEl=document.getElementById('sc-val'),lvEl=document.getElementById('lv-val'),stEl=document.getElementById('st-val'),skEl=document.getElementById('sk-val');
-var scElM=document.getElementById('sc-val-m'),lvElM=document.getElementById('lv-val-m'),stElM=document.getElementById('st-val-m');
+var scElM=document.getElementById('sc-val-m'),lvElM=document.getElementById('lv-val-m'),stElM=document.getElementById('st-val-m'),skElM=document.getElementById('sk-val-m');
 var minEl=document.getElementById('minput'),tgtEl=document.getElementById('tgt'),lastEl=document.getElementById('lastbox'),ovEl=document.getElementById('ov');
-var tgtElM=document.getElementById('tgt-m'),morseHintM=document.getElementById('morse-hint-m');
+var mobMinEl=document.getElementById('mob-minput'),mobTgtLetter=document.getElementById('mob-tgt-letter'),mobTgtMorse=document.getElementById('mob-tgt-morse');
+
 function syncMobileStats(){
-  if(scElM)scElM.textContent=scEl.textContent;
-  if(lvElM)lvElM.textContent=lvEl.textContent;
-  if(stElM)stElM.textContent=stEl.textContent;
+  if(scElM)scElM.textContent=score;
+  if(lvElM)lvElM.textContent=level;
+  if(stElM)stElM.textContent=maxStack();
+  if(skElM)skElM.textContent=streak;
+}
+function renderInput(){
+  var txt=curInput?curInput.replace(/\./g,'·').replace(/-/g,'—'):'TAP HERE';
+  minEl.textContent=txt;minEl.classList.remove('err');
+  if(mobMinEl){mobMinEl.textContent=txt;mobMinEl.classList.remove('err');}
 }
 
 // Input
 var curInput='',keyDownAt=null,subTimer=null;
-function renderInput(){minEl.textContent=curInput?curInput.replace(/\./g,'·').replace(/-/g,'—'):'· —';minEl.classList.remove('err');}
 function appendSym(sym){curInput+=sym;renderInput();clearTimeout(subTimer);subTimer=setTimeout(doSubmit,gapMs());}
 function doSubmit(){
   clearTimeout(subTimer);
   if(!curInput||gstate!=='playing'){curInput='';renderInput();return;}
   var decoded=REV[curInput],tgt=getTarget();
-  lastEl.textContent=curInput.replace(/\./g,'·').replace(/-/g,'—')+(decoded?' = '+decoded:' = ?');
+  if(lastEl)lastEl.textContent=curInput.replace(/\./g,'·').replace(/-/g,'—')+(decoded?' = '+decoded:' = ?');
   if(decoded&&tgt&&decoded===tgt.letter){
     score+=10+streak*2+level*5;streak++;
     scEl.textContent=score;skEl.textContent=streak;
@@ -298,10 +386,11 @@ function doSubmit(){
     falling=falling.filter(function(b){return b!==tgt;});
     updateLevel();flashRef(decoded);
   } else {
-    streak=0;skEl.textContent=0;minEl.classList.add('err');
+    streak=0;skEl.textContent=0;
+    minEl.classList.add('err');if(mobMinEl)mobMinEl.classList.add('err');
     if(tgt)tgt.shakeUntil=Date.now()+300;
   }
-  curInput='';renderInput();
+  curInput='';renderInput();syncMobileStats();
 }
 function clearInput(){clearTimeout(subTimer);curInput='';renderInput();}
 function flashRef(l){document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});var row=document.getElementById('ref-'+l);if(row){row.classList.add('hi');setTimeout(function(){row.classList.remove('hi');},600);}}
@@ -327,20 +416,34 @@ morseBtn.addEventListener('touchend',morseBtnUp,{passive:false});
 morseBtn.addEventListener('touchcancel',function(e){e.preventDefault();morseBtn.classList.remove('pressed');btnDownAt=null;},{passive:false});
 
 
-// Sliders — keep in sync
+// Sliders — keep in sync (desktop right col + mobile)
 function updateDash(val){
   dashThreshold=parseInt(val,10);
   document.getElementById('dashSlider').value=val;
   document.getElementById('dashVal').textContent=val+'ms';
   document.getElementById('gapSliderR').value=val;
   document.getElementById('gapValR').textContent=val+'ms';
+  var ms=document.getElementById('mobDashSlider');if(ms)ms.value=val;
+  var mv=document.getElementById('mob-dash-val');if(mv)mv.textContent=val+'ms';
   clearInput();
 }
 document.getElementById('dashSlider').addEventListener('input',function(){updateDash(this.value);this.blur();});
 document.getElementById('gapSliderR').addEventListener('input',function(){updateDash(this.value);this.blur();});
+var mobDs=document.getElementById('mobDashSlider');
+if(mobDs)mobDs.addEventListener('input',function(){updateDash(this.value);this.blur();});
 
-// Easy mode
-document.getElementById('ezybtn').addEventListener('click',function(){easyMode=!easyMode;this.textContent=(easyMode?'● ':'○ ')+'Easy Mode';this.classList.toggle('on',easyMode);this.blur();});
+// Easy mode — sync desktop and mobile buttons
+function setEasyMode(val){
+  easyMode=val;
+  var dBtn=document.getElementById('ezybtn');
+  var mBtn=document.getElementById('mob-ezybtn');
+  var txt=(easyMode?'● ':'○ ')+'Easy Mode';
+  if(dBtn){dBtn.textContent=txt;dBtn.classList.toggle('on',easyMode);}
+  if(mBtn){mBtn.textContent=txt;mBtn.classList.toggle('on',easyMode);}
+}
+document.getElementById('ezybtn').addEventListener('click',function(){setEasyMode(!easyMode);this.blur();});
+var mEzy=document.getElementById('mob-ezybtn');
+if(mEzy)mEzy.addEventListener('click',function(){setEasyMode(!easyMode);this.blur();});
 
 // Game logic
 function spawnBlock(){
@@ -404,12 +507,22 @@ function gameLoop(){
   var timeBoost=(gameFrames/600)*0.06,tgt=getTarget();
   for(var i=falling.length-1;i>=0;i--){
     var b=falling[i],stopY=landY(b.col);
-    if(b.y>=stopY){stack[b.col].push(b.letter);falling.splice(i,1);stEl.textContent=maxStack();if(stack[b.col].length>=MAXROWS){triggerGameOver();return;}}
+    if(b.y>=stopY){stack[b.col].push(b.letter);falling.splice(i,1);var ms=maxStack();stEl.textContent=ms;syncMobileStats();if(stack[b.col].length>=MAXROWS){triggerGameOver();return;}}
     else{b.y+=b.speed+timeBoost;var sx=b.x+(Date.now()<b.shakeUntil?(Math.random()-.5)*7:0);drawBlock(b.letter,sx,b.y,b===tgt,false);}
   }
   var cur=getTarget();
-  if(cur){tgtEl.textContent=cur.letter;if(tgtElM)tgtElM.textContent=cur.letter;if(morseHintM)morseHintM.textContent=MORSE[cur.letter].replace(/\./g,'·').replace(/-/g,'—');document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});var ref=document.getElementById('ref-'+cur.letter);if(ref)ref.classList.add('hi');}
-  else{tgtEl.textContent='—';if(tgtElM)tgtElM.textContent='—';if(morseHintM)morseHintM.textContent='';document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});}
+  if(cur){
+    tgtEl.textContent=cur.letter;
+    if(mobTgtLetter)mobTgtLetter.textContent=cur.letter;
+    if(mobTgtMorse)mobTgtMorse.textContent=MORSE[cur.letter].replace(/\./g,'·').replace(/-/g,'—');
+    document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});
+    var ref=document.getElementById('ref-'+cur.letter);if(ref)ref.classList.add('hi');
+  } else {
+    tgtEl.textContent='—';
+    if(mobTgtLetter)mobTgtLetter.textContent='—';
+    if(mobTgtMorse)mobTgtMorse.textContent='';
+    document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});
+  }
   syncMobileStats();
   drawParticles();
 }
@@ -485,7 +598,9 @@ function showChangeName(){
 function startGame(){
   resizeCanvas();resetState();
   scEl.textContent='0';lvEl.textContent='1';stEl.textContent='0';skEl.textContent='0';
-  tgtEl.textContent='—';lastEl.textContent='—';clearInput();
+  tgtEl.textContent='—';if(lastEl)lastEl.textContent='—';clearInput();
+  if(mobTgtLetter)mobTgtLetter.textContent='—';if(mobTgtMorse)mobTgtMorse.textContent='';
+  syncMobileStats();
   paused=false;pauseBtn.textContent='❚❚ PAUSE';pauseBtn.classList.add('visible');document.getElementById('clickerBar').classList.add('visible');ovEl.style.display='none';gstate='playing';
 }
 
