@@ -26,6 +26,12 @@ body{background:var(--bg);color:var(--text);font-family:'Share Tech Mono',monosp
 #wrapper{display:flex;gap:10px;align-items:flex-start;padding:8px;justify-content:center;flex:1;min-height:0;overflow:hidden;}
 .col{display:flex;flex-direction:column;gap:8px;height:100%;}
 #lcol{width:155px;} #rcol{width:140px;}
+@media(max-width:600px){
+  #lcol,#rcol{display:none;}
+  #wrapper{padding:4px;}
+  #gmain{width:100%;}
+  #gtitle{font-size:14px;}
+}
 .box{background:var(--panel);border:1px solid var(--border);border-radius:6px;padding:10px;}
 .lbl{font-family:'Orbitron',monospace;font-size:8px;letter-spacing:3px;color:var(--dim);text-transform:uppercase;margin-bottom:5px;}
 .val{font-family:'Orbitron',monospace;font-size:22px;font-weight:900;color:var(--green);text-shadow:0 0 8px #00ff8880;line-height:1;}
@@ -85,10 +91,17 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 /* Mobile clicker bar */
 #clickerBar{display:none;align-items:center;justify-content:center;padding:8px;background:var(--panel);border-top:1px solid var(--border);gap:10px;flex-shrink:0;}
 #clickerBar.visible{display:flex;}
-#morseBtn{background:var(--panel);border:2px solid var(--cyan);border-radius:50%;width:66px;height:66px;color:var(--cyan);font-size:26px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px #00cfff30;transition:background .05s,box-shadow .05s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
+#morseBtn{background:var(--panel);border:2px solid var(--cyan);border-radius:50%;width:72px;height:72px;color:var(--cyan);font-size:28px;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px #00cfff30;transition:background .05s,box-shadow .05s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
 #morseBtn.pressed{background:rgba(0,207,255,0.18);box-shadow:0 0 24px #00cfff80;}
-
 .clkHint{font-size:8px;color:var(--dim);line-height:1.5;text-align:center;}
+
+/* Mobile stats shown in clicker bar */
+#mobileStats{display:none;flex-direction:column;gap:4px;font-family:'Orbitron',monospace;}
+@media(max-width:600px){
+  #mobileStats{display:flex;}
+  #clickerBar{padding:6px 12px;gap:16px;}
+  #morseBtn{width:80px;height:80px;font-size:32px;}
+}
 
 /* Leaderboard */
 .live-badge{display:inline-block;background:#ff4466;color:white;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;padding:2px 5px;border-radius:3px;margin-left:4px;animation:blink 1.2s infinite;}
@@ -171,11 +184,19 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 
 <!-- Mobile clicker bar -->
 <div id="clickerBar">
+  <div id="mobileStats">
+    <div style="font-size:9px;color:var(--dim);letter-spacing:2px;">SCORE &nbsp;<span style="color:var(--green);font-size:13px;" id="sc-val-m">0</span></div>
+    <div style="font-size:9px;color:var(--dim);letter-spacing:2px;">LV &nbsp;<span style="color:var(--cyan);font-size:13px;" id="lv-val-m">1</span> &nbsp; STK &nbsp;<span style="color:var(--red);font-size:13px;" id="st-val-m">0</span></div>
+  </div>
   <div style="display:flex;flex-direction:column;align-items:center;gap:2px;">
     <div id="morseBtn">·—</div>
     <div class="clkHint">tap=· hold=—</div>
   </div>
-
+  <div style="display:flex;flex-direction:column;align-items:center;gap:6px;">
+    <div style="font-size:9px;color:var(--dim);letter-spacing:1px;">TARGET</div>
+    <div style="font-family:'Orbitron',monospace;font-size:20px;color:var(--yellow);text-shadow:0 0 8px #ffd70080;" id="tgt-m">—</div>
+    <div style="font-size:12px;color:var(--cyan);letter-spacing:2px;" id="morse-hint-m"></div>
+  </div>
 </div>
 
 <script>
@@ -224,15 +245,16 @@ function resizeCanvas(){
   var clickH=document.getElementById('clickerBar').offsetHeight||90;
   var ibarH=document.getElementById('ibar').offsetHeight||46;
   var titleH=document.getElementById('gtitle').offsetHeight||22;
-  var lcolW=document.getElementById('lcol').offsetWidth||0;
-  var rcolW=document.getElementById('rcol').offsetWidth||0;
+  var isMobile=window.innerWidth<=600;
+  var lcolW=isMobile?0:(document.getElementById('lcol').offsetWidth||0);
+  var rcolW=isMobile?0:(document.getElementById('rcol').offsetWidth||0);
   var vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
   var vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
-  var availH=vh-navH-clickH-ibarH-titleH-40;
-  var availW=vw-lcolW-rcolW-40;
+  var availH=vh-navH-clickH-ibarH-titleH-(isMobile?20:40);
+  var availW=vw-lcolW-rcolW-(isMobile?16:40);
   // Keep 5-col aspect ratio but fill available space
   var blockSize=Math.floor(Math.min(availW/NCOLS, availH/10));
-  blockSize=Math.max(40,Math.min(80,blockSize));
+  blockSize=Math.max(40,Math.min(isMobile?100:80,blockSize));
   W=blockSize*NCOLS;
   H=Math.max(200,Math.min(availH,blockSize*10));
   cv.width=W;cv.height=H;
@@ -244,12 +266,21 @@ var gstate='idle',paused=false,falling=[],stack=[],score=0,level=1,streak=0,spaw
 
 function resetState(){
   falling=[];stack=[];for(var i=0;i<NCOLS;i++)stack.push([]);
-  score=0;level=1;streak=0;spawnTmr=120;spawnEvery=180;dropSpeed=0.6;particles=[];gameFrames=0;
+  score=0;level=1;streak=0;spawnTmr=120;particles=[];gameFrames=0;
+  if(easyMode){dropSpeed=0.5;spawnEvery=200;}
+  else{dropSpeed=0.6;spawnEvery=180;}
   COLW=W/NCOLS;MAXROWS=Math.floor(H/BLOCK);
 }
 
 var scEl=document.getElementById('sc-val'),lvEl=document.getElementById('lv-val'),stEl=document.getElementById('st-val'),skEl=document.getElementById('sk-val');
+var scElM=document.getElementById('sc-val-m'),lvElM=document.getElementById('lv-val-m'),stElM=document.getElementById('st-val-m');
 var minEl=document.getElementById('minput'),tgtEl=document.getElementById('tgt'),lastEl=document.getElementById('lastbox'),ovEl=document.getElementById('ov');
+var tgtElM=document.getElementById('tgt-m'),morseHintM=document.getElementById('morse-hint-m');
+function syncMobileStats(){
+  if(scElM)scElM.textContent=scEl.textContent;
+  if(lvElM)lvElM.textContent=lvEl.textContent;
+  if(stElM)stElM.textContent=stEl.textContent;
+}
 
 // Input
 var curInput='',keyDownAt=null,subTimer=null;
@@ -321,7 +352,21 @@ function spawnBlock(){
 function getTarget(){if(!falling.length)return null;return falling.reduce(function(b,a){return a.y>b.y?a:b;},falling[0]);}
 function landY(col){return H-BLOCK*stack[col].length-BLOCK/2;}
 function maxStack(){return Math.max.apply(null,[0].concat(stack.map(function(c){return c.length;})));}
-function updateLevel(){var nl=Math.floor(score/100)+1;if(nl!==level){level=nl;dropSpeed=0.6+(level-1)*0.15;spawnEvery=Math.max(45,180-(level-1)*15);lvEl.textContent=level;}}
+function updateLevel(){
+  var nl=Math.floor(score/100)+1;
+  if(nl!==level){
+    level=nl;
+    if(easyMode){
+      // Easy mode: much gentler difficulty curve
+      dropSpeed=0.5+(level-1)*0.06;
+      spawnEvery=Math.max(100,200-(level-1)*8);
+    } else {
+      dropSpeed=0.6+(level-1)*0.15;
+      spawnEvery=Math.max(45,180-(level-1)*15);
+    }
+    lvEl.textContent=level;
+  }
+}
 function explode(x,y,color){for(var i=0;i<24;i++){var a=(Math.PI*2*i/24)+Math.random()*0.3,s=2+Math.random()*4;particles.push({x:x,y:y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:1.5+Math.random()*2.5,color:color,life:30+Math.random()*20,max:50});}}
 function drawBg(){ctx.fillStyle='#060b14';ctx.fillRect(0,0,W,H);ctx.strokeStyle='#0d1e30';ctx.lineWidth=1;for(var c=1;c<NCOLS;c++){ctx.beginPath();ctx.moveTo(c*COLW,0);ctx.lineTo(c*COLW,H);ctx.stroke();}}
 function drawBlock(letter,x,y,isTarget,isStacked){
@@ -334,9 +379,17 @@ function drawBlock(letter,x,y,isTarget,isStacked){
   ctx.fillStyle=fill;ctx.fillRect(bx,by,bw,bh);
   ctx.strokeStyle=color;ctx.lineWidth=isTarget?2:1;ctx.strokeRect(bx,by,bw,bh);
   ctx.fillStyle=color;ctx.shadowBlur=isStacked?2:(isTarget?10:5);
+  var letterOffsetY=(!isStacked&&easyMode)?-Math.floor(BLOCK*0.18):0;
   ctx.font='bold 22px Orbitron,monospace';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(letter,x,isStacked?y:y-(easyMode?5:0));
-  if(!isStacked&&easyMode){var morse=MORSE[letter].replace(/\./g,'·').replace(/-/g,'—');ctx.shadowBlur=0;ctx.font='8px Share Tech Mono,monospace';ctx.fillStyle=isTarget?'rgba(255,215,0,.7)':'rgba(0,207,255,.5)';ctx.fillText(morse,x,y+BLOCK/2-6);}
+  ctx.fillText(letter,x,y+letterOffsetY);
+  if(!isStacked&&easyMode){
+    var morse=MORSE[letter].replace(/\./g,'·').replace(/-/g,'—');
+    var morseFs=Math.max(10,Math.floor(BLOCK*0.22));
+    ctx.shadowBlur=isTarget?8:4;
+    ctx.font='bold '+morseFs+'px Share Tech Mono,monospace';
+    ctx.fillStyle=isTarget?'rgba(255,215,0,1)':'rgba(0,207,255,.85)';
+    ctx.fillText(morse,x,y+Math.floor(BLOCK*0.28));
+  }
   ctx.restore();
 }
 function drawStack(){for(var col=0;col<NCOLS;col++){for(var row=0;row<stack[col].length;row++){drawBlock(stack[col][row],col*COLW+COLW/2,H-BLOCK*row-BLOCK/2,false,true);}}}
@@ -355,8 +408,9 @@ function gameLoop(){
     else{b.y+=b.speed+timeBoost;var sx=b.x+(Date.now()<b.shakeUntil?(Math.random()-.5)*7:0);drawBlock(b.letter,sx,b.y,b===tgt,false);}
   }
   var cur=getTarget();
-  if(cur){tgtEl.textContent=cur.letter;document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});var ref=document.getElementById('ref-'+cur.letter);if(ref)ref.classList.add('hi');}
-  else{tgtEl.textContent='—';document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});}
+  if(cur){tgtEl.textContent=cur.letter;if(tgtElM)tgtElM.textContent=cur.letter;if(morseHintM)morseHintM.textContent=MORSE[cur.letter].replace(/\./g,'·').replace(/-/g,'—');document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});var ref=document.getElementById('ref-'+cur.letter);if(ref)ref.classList.add('hi');}
+  else{tgtEl.textContent='—';if(tgtElM)tgtElM.textContent='—';if(morseHintM)morseHintM.textContent='';document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});}
+  syncMobileStats();
   drawParticles();
 }
 
@@ -395,17 +449,17 @@ async function showScores(){
     +'<div class="sub" style="font-size:9px;margin-top:4px;">Scores shared worldwide 🌍</div>'
     +nameHtml
     +'<button class="gbtn" onclick="showStart()">BACK</button>'
-    +'<button class="sbtn" onclick="showChangeName()">✎ CHANGE NAME</button>';
+    +'<button class="sbtn" onclick="showChangeName()">✎ CHANGE CALLSIGN</button>';
 }
 
 function showChangeName(){
   var cur=getLocalName();
   ovEl.style.display='flex';
-  ovEl.innerHTML='<h2>CHANGE NAME</h2>'
-    +'<div class="sub">Current name:<br><b style="color:var(--yellow)">'+(cur?cur.toUpperCase().slice(0,12):'none')+'</b></div>'
+  ovEl.innerHTML='<h2>CHANGE CALLSIGN</h2>'
+    +'<div class="sub">Current callsign:<br><b style="color:var(--yellow)">'+(cur?cur.toUpperCase().slice(0,12):'none')+'</b></div>'
     +'<div class="sub">Enter a new callsign:</div>'
-    +'<input id="nameinput" class="nameinput" maxlength="12" placeholder="NEW NAME" />'
-    +'<button class="gbtn" id="chgnbtn">SAVE NAME</button>'
+    +'<input id="nameinput" class="nameinput" maxlength="12" placeholder="NEW CALLSIGN" />'
+    +'<button class="gbtn" id="chgnbtn">SAVE CALLSIGN</button>'
     +'<button class="sbtn" onclick="showScores()">CANCEL</button>';
   var ni=document.getElementById('nameinput');
   ni.focus();
@@ -438,12 +492,24 @@ function startGame(){
 async function triggerGameOver(){
   gstate='gameover';pauseBtn.classList.remove('visible');document.getElementById('clickerBar').classList.remove('visible');
   var fs=score,fl=level,fk=streak;
+
+  // Easy mode — no leaderboard
+  if(easyMode){
+    ovEl.style.display='flex';
+    ovEl.innerHTML='<h2>GAME OVER</h2><div class="bscore">'+fs+'</div>'
+      +'<div class="sub" style="color:var(--yellow);">⚡ EASY MODE — practice run!</div>'
+      +'<div class="sub">Leaderboard is for Standard Mode only.<br>Turn off Easy Mode to compete!</div>'
+      +'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button>'
+      +'<button class="sbtn" onclick="showStart()">MAIN MENU</button>';
+    return;
+  }
+
   var existingName=getLocalName();
   var globalScores=await loadGlobalScores();
   var existingEntry=existingName?globalScores.find(function(s){return s.name===existingName.toUpperCase().slice(0,12);}):null;
 
   if(!existingName){
-    // First time — always ask for name
+    // First time — always ask for callsign
     showNameEntry(fs,fl,fk);
   } else if(!existingEntry||fs>existingEntry.score){
     // Personal best
@@ -476,7 +542,7 @@ function showNameEntry(fs,fl,fk){
   ovEl.style.display='flex';
   ovEl.innerHTML='<h2>GAME OVER</h2><div class="bscore">'+fs+'</div>'
     +'<div class="sub">Enter your callsign for the<br><b style="color:var(--cyan)">worldwide leaderboard</b>:</div>'
-    +'<input id="nameinput" class="nameinput" maxlength="12" placeholder="YOUR NAME" />'
+    +'<input id="nameinput" class="nameinput" maxlength="12" placeholder="YOUR CALLSIGN" />'
     +'<button class="gbtn" id="subbtn">JOIN LEADERBOARD</button>'
     +'<button class="sbtn" onclick="startGame()">SKIP</button>';
   var ni=document.getElementById('nameinput');
