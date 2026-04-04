@@ -336,19 +336,28 @@ var NCOLS=5,BLOCK=50,COLW=W/NCOLS,MAXROWS=Math.floor(H/BLOCK),blockSize=50;
 function resizeCanvas(){
   var navH=document.querySelector('.dd-nav').offsetHeight||50;
   var isMobile=window.innerWidth<=900;
-  var clickH=isMobile?(document.getElementById('clickerBar').offsetHeight||160):0;
+  var clickBar=document.getElementById('clickerBar');
+  var clickH=0;
+  if(isMobile){
+    // Force layout measurement — if bar is hidden measure its natural height
+    var wasHidden=clickBar.style.display==='none'||!clickBar.classList.contains('visible');
+    if(wasHidden){clickBar.style.visibility='hidden';clickBar.style.display='flex';}
+    clickH=clickBar.offsetHeight||170;
+    if(wasHidden){clickBar.style.display='';clickBar.style.visibility='';}
+  }
   var ibarH=isMobile?0:(document.getElementById('ibar').offsetHeight||46);
   var titleH=isMobile?0:(document.getElementById('gtitle').offsetHeight||22);
   var lcolW=isMobile?0:(document.getElementById('lcol').offsetWidth||0);
   var rcolW=isMobile?0:(document.getElementById('rcol').offsetWidth||0);
   var vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
   var vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
-  var availH=vh-navH-clickH-ibarH-titleH-(isMobile?8:40);
+  var availH=vh-navH-clickH-ibarH-titleH-(isMobile?4:40);
   var availW=vw-lcolW-rcolW-(isMobile?0:40);
   var blockSize=Math.floor(Math.min(availW/NCOLS,availH/10));
-  blockSize=Math.max(40,Math.min(isMobile?120:80,blockSize));
+  blockSize=Math.max(36,Math.min(isMobile?120:80,blockSize));
   W=blockSize*NCOLS;
-  H=Math.max(200,Math.min(availH,blockSize*10));
+  H=Math.min(availH,blockSize*10);
+  H=Math.max(150,H);
   cv.width=W;cv.height=H;
   COLW=W/NCOLS;MAXROWS=Math.floor(H/blockSize);BLOCK=blockSize;
 }
@@ -621,12 +630,16 @@ function showChangeName(){
 }
 
 function startGame(){
+  // Show clicker bar first so resizeCanvas measures its real height
+  document.getElementById('clickerBar').classList.add('visible');
+  pauseBtn.classList.add('visible');
   resizeCanvas();resetState();
   scEl.textContent='0';lvEl.textContent='1';stEl.textContent='0';skEl.textContent='0';
   tgtEl.textContent='—';if(lastEl)lastEl.textContent='—';clearInput();
   if(mobTgtLetter)mobTgtLetter.textContent='—';if(mobTgtMorse)mobTgtMorse.textContent='';
   syncMobileStats();
-  paused=false;pauseBtn.textContent='❚❚ PAUSE';pauseBtn.classList.add('visible');document.getElementById('clickerBar').classList.add('visible');ovEl.style.display='none';gstate='playing';
+  paused=false;pauseBtn.textContent='❚❚ PAUSE';
+  ovEl.style.display='none';gstate='playing';
 }
 
 async function triggerGameOver(){
