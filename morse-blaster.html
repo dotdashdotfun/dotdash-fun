@@ -114,8 +114,8 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 #clickerBar{display:none;flex-shrink:0;}
 #morseBtn{display:none;}
 
-/* ── MOBILE LAYOUT (≤600px) ── */
-@media(max-width:600px){
+/* ── MOBILE/TABLET LAYOUT (≤900px) ── */
+@media(max-width:900px){
   #clickerBar.visible{display:flex;}
 
   #morseBtn{background:var(--panel);border:2px solid var(--cyan);border-radius:50%;width:86px;height:86px;color:var(--cyan);font-size:13px;font-family:'Share Tech Mono',monospace;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px #00cfff30;transition:background .05s,box-shadow .05s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
@@ -172,25 +172,25 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 
   /* Mobile easy mode button */
   #mob-ezybtn{
-    font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);
-    background:#060b14;border:1px solid var(--border);
-    padding:5px 8px;border-radius:4px;cursor:pointer;text-align:left;
+    font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;
+    color:var(--dim);background:transparent;
+    border:1px solid var(--border);
+    padding:7px 10px;border-radius:20px;
+    cursor:pointer;text-align:center;
     touch-action:manipulation;width:100%;
+    transition:all .2s;
   }
-  #mob-ezybtn.on{color:var(--yellow);border-color:var(--yellow);}
+  #mob-ezybtn.on{color:#0a0e1a;background:var(--yellow);border-color:var(--yellow);box-shadow:0 0 12px #ffd70060;}
 
   /* Mobile slider row */
   #mob-slider-row{display:flex;align-items:center;gap:6px;font-size:9px;color:var(--dim);}
   #mob-slider-row input{flex:1;height:5px;}
   #mob-dash-val{font-family:'Orbitron',monospace;font-size:9px;color:var(--cyan);min-width:32px;text-align:right;}
 
-  /* Big morse button */
+  /* Big morse button — larger on iPad */
   #morseBtn{width:86px;height:86px;font-size:13px;border-radius:50%;flex-shrink:0;}
   #mob-btn-col{display:flex;flex-direction:column;align-items:center;gap:2px;}
   #mob-btn-hint{font-size:8px;color:var(--dim);text-align:center;line-height:1.4;}
-
-  /* Pause btn position on mobile */
-  #pauseBtn{top:4px;right:4px;}
 }
 </style>
 </head>
@@ -307,6 +307,7 @@ async function saveGlobalScore(name,sc,lv,pin){
     var r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,score:sc,level:lv,pin:pin})});
     var data=await r.json();
     if(r.status===403&&data.wrongPin)return{wrongPin:true};
+    if(r.status===400&&data.profane)return{profane:true};
     return data;
   }catch(e){return await loadGlobalScores();}
 }
@@ -334,19 +335,18 @@ var NCOLS=5,BLOCK=50,COLW=W/NCOLS,MAXROWS=Math.floor(H/BLOCK),blockSize=50;
 
 function resizeCanvas(){
   var navH=document.querySelector('.dd-nav').offsetHeight||50;
-  var clickH=document.getElementById('clickerBar').offsetHeight||90;
-  var ibarH=document.getElementById('ibar').offsetHeight||46;
-  var titleH=document.getElementById('gtitle').offsetHeight||22;
-  var isMobile=window.innerWidth<=600;
+  var isMobile=window.innerWidth<=900;
+  var clickH=isMobile?(document.getElementById('clickerBar').offsetHeight||160):0;
+  var ibarH=isMobile?0:(document.getElementById('ibar').offsetHeight||46);
+  var titleH=isMobile?0:(document.getElementById('gtitle').offsetHeight||22);
   var lcolW=isMobile?0:(document.getElementById('lcol').offsetWidth||0);
   var rcolW=isMobile?0:(document.getElementById('rcol').offsetWidth||0);
   var vw=window.visualViewport?window.visualViewport.width:window.innerWidth;
   var vh=window.visualViewport?window.visualViewport.height:window.innerHeight;
-  var availH=vh-navH-clickH-ibarH-titleH-(isMobile?20:40);
-  var availW=vw-lcolW-rcolW-(isMobile?16:40);
-  // Keep 5-col aspect ratio but fill available space
-  var blockSize=Math.floor(Math.min(availW/NCOLS, availH/10));
-  blockSize=Math.max(40,Math.min(isMobile?100:80,blockSize));
+  var availH=vh-navH-clickH-ibarH-titleH-(isMobile?8:40);
+  var availW=vw-lcolW-rcolW-(isMobile?0:40);
+  var blockSize=Math.floor(Math.min(availW/NCOLS,availH/10));
+  blockSize=Math.max(40,Math.min(isMobile?120:80,blockSize));
   W=blockSize*NCOLS;
   H=Math.max(200,Math.min(availH,blockSize*10));
   cv.width=W;cv.height=H;
@@ -600,14 +600,18 @@ function showChangeName(){
     if(!newName){msg.textContent='Please enter a callsign.';return;}
     if(!/^\d{4}$/.test(pin)){msg.textContent='PIN must be exactly 4 digits.';return;}
     msg.style.color='var(--dim)';msg.textContent='Checking...';
-    // Try posting a dummy score of 0 to verify/register the callsign+PIN
-    // We just want to claim the callsign — server will reject if PIN is wrong
-    var r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:newName,score:0,level:1,pin:pin})});
+    // Use PUT to register/verify callsign+PIN without posting any score
+    var r=await fetch(WORKER_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:newName,pin:pin})});
     var data=await r.json();
     if(r.status===403&&data.wrongPin){
       msg.style.color='var(--red)';
       msg.textContent='That callsign is taken by someone else.';
       ni.focus();return;
+    }
+    if(data.profane){
+      msg.style.color='var(--red)';
+      msg.textContent='That callsign is not allowed on this site.';
+      ni.value='';ni.focus();return;
     }
     setLocalName(newName);setLocalPin(pin);
     showScores();
@@ -668,6 +672,13 @@ async function triggerGameOver(){
           +'<button class="sbtn" onclick="startGame()">SKIP</button>';
         return;
       }
+      if(result&&result.profane){
+        ovEl.innerHTML='<h2>CALLSIGN NOT ALLOWED</h2>'
+          +'<div class="sub" style="color:var(--red);">That callsign contains inappropriate content and cannot be used on this site.</div>'
+          +'<button class="gbtn" onclick="showNameEntry('+fs+','+fl+','+fk+')">CHOOSE NEW CALLSIGN</button>'
+          +'<button class="sbtn" onclick="startGame()">SKIP</button>';
+        return;
+      }
       ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'+renderBoard(result,existingName)
         +'<div class="sub" style="font-size:9px;margin-top:4px;">Scores shared worldwide 🌍</div>'
         +'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button>'
@@ -703,13 +714,19 @@ function showNameEntry(fs,fl,fk){
     if(!name){msg.textContent='Please enter a callsign.';return;}
     if(!/^\d{4}$/.test(pin)){msg.textContent='PIN must be exactly 4 digits.';return;}
     msg.style.color='var(--dim)';msg.textContent='Saving...';
+    // Save locally first so the score POST has the PIN ready
+    setLocalName(name);setLocalPin(pin);
     var result=await saveGlobalScore(name,fs,fl,pin);
     if(result&&result.wrongPin){
       msg.style.color='var(--red)';
       msg.textContent='That callsign is taken. Try a different one.';
       ni.focus();return;
     }
-    setLocalName(name);setLocalPin(pin);
+    if(result&&result.profane){
+      msg.style.color='var(--red)';
+      msg.textContent='That callsign is not allowed on this site.';
+      ni.value='';ni.focus();return;
+    }
     ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'+renderBoard(result,name)
       +'<div class="sub" style="font-size:9px;margin-top:4px;">Scores shared worldwide 🌍</div>'
       +'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button>'
