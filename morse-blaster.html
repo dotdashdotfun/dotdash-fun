@@ -61,14 +61,27 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 #dashVal{color:var(--cyan);font-family:'Orbitron',monospace;font-size:12px;}
 
 /* Easy mode button */
-.ezybtn{font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--dim);background:#060b14;border:1px solid var(--border);padding:5px 8px;border-radius:4px;cursor:pointer;text-align:left;touch-action:manipulation;}
-.ezybtn:hover{color:var(--text);}
-.ezybtn.on{color:var(--yellow);border-color:var(--yellow);}
+.ezybtn{
+  font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;
+  color:var(--dim);background:transparent;
+  border:1px solid var(--border);
+  padding:7px 10px;border-radius:20px;
+  cursor:pointer;text-align:center;
+  touch-action:manipulation;width:100%;
+  transition:all .2s;
+}
+.ezybtn:hover{color:var(--text);border-color:var(--dim);}
+.ezybtn.on{
+  color:#0a0e1a;background:var(--yellow);
+  border-color:var(--yellow);
+  text-shadow:none;
+  box-shadow:0 0 12px #ffd70060;
+}
 
-/* Pause button */
-#pauseBtn{display:none;position:absolute;top:6px;right:6px;background:rgba(6,11,20,.85);border:1px solid var(--border);color:var(--dim);font-family:'Orbitron',monospace;font-size:9px;letter-spacing:1px;padding:4px 8px;border-radius:4px;cursor:pointer;z-index:20;touch-action:manipulation;-webkit-tap-highlight-color:transparent;}
+/* Pause button — in nav bar */
+#pauseBtn{display:none;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:1px;padding:6px 14px;border-radius:20px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;border:1.5px solid var(--cyan);background:transparent;color:var(--cyan);transition:all .15s;margin-left:auto;}
 #pauseBtn.visible{display:block;}
-#pauseBtn:hover{color:var(--text);border-color:var(--text);}
+#pauseBtn:hover{background:var(--cyan);color:#060b14;}
 
 /* Leaderboard */
 .live-badge{display:inline-block;background:#ff4466;color:white;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;padding:2px 5px;border-radius:3px;margin-left:4px;animation:blink 1.2s infinite;}
@@ -185,6 +198,7 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 <div class="dd-nav">
   <a class="dd-back" href="games.html">← Games</a>
   <span class="dd-title">🚀 Morse Blaster</span>
+  <button id="pauseBtn">❚❚ PAUSE</button>
   <a class="dd-logo" href="index.html"><span class="d">dot</span><span class="a">dash</span><span class="f">.fun</span></a>
 </div>
 
@@ -194,16 +208,12 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
   <div class="box"><div class="lbl">Score</div><div class="val" id="sc-val">0</div></div>
   <div class="box"><div class="lbl">Level</div><div class="val" id="lv-val">1</div></div>
   <div class="box"><div class="lbl">Stack</div><div class="val" id="st-val">0</div></div>
-  <div class="box" style="flex:1;overflow:hidden;">
-    <div class="lbl">Morse Ref</div>
-    <div class="mgrid" id="mgrid"></div>
-  </div>
+
 </div>
 <!-- MAIN -->
 <div id="gmain">
   <div id="gtitle">MORSE BLASTER</div>
   <canvas id="cv" width="300" height="400"></canvas>
-  <button id="pauseBtn">❚❚ PAUSE</button>
   <div id="ibar">
     <div id="minput" style="color:var(--dim);font-size:14px;letter-spacing:3px;">USE SPACEBAR</div>
     <div id="tgtline">TARGET: <span id="tgt">—</span></div>
@@ -241,7 +251,7 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
   </div>
   <div class="box">
     <div class="lbl">Mode</div>
-    <button id="ezybtn">○ Easy Mode</button>
+    <button id="ezybtn" class="ezybtn">EASY MODE</button>
     <div class="il" style="margin-top:5px;">Show morse on blocks</div>
   </div>
 </div>
@@ -268,7 +278,7 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
   <!-- Row 3: Controls + big button -->
   <div id="mob-controls">
     <div id="mob-left">
-      <button id="mob-ezybtn" class="ezybtn">○ Easy Mode</button>
+      <button id="mob-ezybtn" class="ezybtn">EASY MODE</button>
       <div id="mob-slider-row">
         <span>FAST</span>
         <input type="range" id="mobDashSlider" min="50" max="400" value="200" step="1">
@@ -310,13 +320,7 @@ var dashThreshold=200;
 function dotMs(){return dashThreshold;}
 function gapMs(){return Math.max(300,Math.round(dashThreshold*1.9));}
 
-// Build ref grid
-var mgrid=document.getElementById('mgrid');
-LETTERS.forEach(function(l){
-  var row=document.createElement('div');row.className='mrow';row.id='ref-'+l;
-  row.innerHTML='<span class="ml">'+l+'</span><span class="mc">'+MORSE[l].replace(/\./g,'·').replace(/-/g,'—')+'</span>';
-  mgrid.appendChild(row);
-});
+
 
 // Canvas
 var cv=document.getElementById('cv');
@@ -346,11 +350,11 @@ function resizeCanvas(){
 }
 
 // Game state
-var gstate='idle',paused=false,falling=[],stack=[],score=0,level=1,streak=0,spawnTmr=0,spawnEvery=180,dropSpeed=0.6,particles=[],easyMode=false,gameFrames=0;
+var gstate='idle',paused=false,falling=[],stack=[],score=0,level=1,streak=0,spawnTmr=0,spawnEvery=180,dropSpeed=0.6,particles=[],easyMode=false,gameFrames=0,easyModeUsed=false;
 
 function resetState(){
   falling=[];stack=[];for(var i=0;i<NCOLS;i++)stack.push([]);
-  score=0;level=1;streak=0;spawnTmr=120;particles=[];gameFrames=0;
+  score=0;level=1;streak=0;spawnTmr=120;particles=[];gameFrames=0;easyModeUsed=easyMode;
   if(easyMode){dropSpeed=0.5;spawnEvery=200;}
   else{dropSpeed=0.6;spawnEvery=180;}
   COLW=W/NCOLS;MAXROWS=Math.floor(H/BLOCK);
@@ -400,7 +404,7 @@ function doSubmit(){
   curInput='';renderInput();syncMobileStats();
 }
 function clearInput(){clearTimeout(subTimer);curInput='';renderInput();}
-function flashRef(l){document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});var row=document.getElementById('ref-'+l);if(row){row.classList.add('hi');setTimeout(function(){row.classList.remove('hi');},600);}}
+function flashRef(l){}
 
 // Keyboard
 window.addEventListener('keydown',function(e){
@@ -442,9 +446,10 @@ if(mobDs)mobDs.addEventListener('input',function(){updateDash(this.value);this.b
 // Easy mode — sync desktop and mobile buttons
 function setEasyMode(val){
   easyMode=val;
+  if(easyMode&&gstate==='playing')easyModeUsed=true;
   var dBtn=document.getElementById('ezybtn');
   var mBtn=document.getElementById('mob-ezybtn');
-  var txt=(easyMode?'● ':'○ ')+'Easy Mode';
+  var txt=easyMode?'⚡ EASY MODE ON':'EASY MODE';
   if(dBtn){dBtn.textContent=txt;dBtn.classList.toggle('on',easyMode);}
   if(mBtn){mBtn.textContent=txt;mBtn.classList.toggle('on',easyMode);}
 }
@@ -467,12 +472,13 @@ function updateLevel(){
   if(nl!==level){
     level=nl;
     if(easyMode){
-      // Easy mode: much gentler difficulty curve
+      // Easy mode: very gentle
       dropSpeed=0.5+(level-1)*0.06;
       spawnEvery=Math.max(100,200-(level-1)*8);
     } else {
-      dropSpeed=0.6+(level-1)*0.15;
-      spawnEvery=Math.max(45,180-(level-1)*15);
+      // Standard: gradual ramp, caps at a challenging but playable speed
+      dropSpeed=0.6+(level-1)*0.07;        // was 0.15 — half as fast
+      spawnEvery=Math.max(80,180-(level-1)*8); // was min 45, -15/lv — much gentler
     }
     lvEl.textContent=level;
   }
@@ -511,7 +517,7 @@ function gameLoop(){
   drawBg();drawStack();
   spawnTmr++;gameFrames++;
   if(spawnTmr>=spawnEvery){spawnTmr=0;spawnBlock();}
-  var timeBoost=(gameFrames/600)*0.06,tgt=getTarget();
+  var timeBoost=(gameFrames/1200)*0.04,tgt=getTarget();
   for(var i=falling.length-1;i>=0;i--){
     var b=falling[i],stopY=landY(b.col);
     if(b.y>=stopY){stack[b.col].push(b.letter);falling.splice(i,1);var ms=maxStack();stEl.textContent=ms;syncMobileStats();if(stack[b.col].length>=MAXROWS){triggerGameOver();return;}}
@@ -522,13 +528,10 @@ function gameLoop(){
     tgtEl.textContent=cur.letter;
     if(mobTgtLetter)mobTgtLetter.textContent=cur.letter;
     if(mobTgtMorse)mobTgtMorse.textContent=easyMode?MORSE[cur.letter].replace(/\./g,'·').replace(/-/g,'—'):'';
-    document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});
-    var ref=document.getElementById('ref-'+cur.letter);if(ref)ref.classList.add('hi');
   } else {
     tgtEl.textContent='—';
     if(mobTgtLetter)mobTgtLetter.textContent='—';
     if(mobTgtMorse)mobTgtMorse.textContent='';
-    document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});
   }
   syncMobileStats();
   drawParticles();
@@ -612,15 +615,15 @@ function startGame(){
 }
 
 async function triggerGameOver(){
-  gstate='gameover';pauseBtn.classList.remove('visible');document.getElementById('clickerBar').classList.remove('visible');
+  paused=false;gstate='gameover';pauseBtn.textContent='❚❚ PAUSE';pauseBtn.classList.remove('visible');document.getElementById('clickerBar').classList.remove('visible');
   var fs=score,fl=level,fk=streak;
 
-  // Easy mode — no leaderboard
-  if(easyMode){
+  // Easy mode used at any point — no leaderboard
+  if(easyModeUsed){
     ovEl.style.display='flex';
     ovEl.innerHTML='<h2>GAME OVER</h2><div class="bscore">'+fs+'</div>'
-      +'<div class="sub" style="color:var(--yellow);">⚡ EASY MODE — practice run!</div>'
-      +'<div class="sub">Leaderboard is for Standard Mode only.<br>Turn off Easy Mode to compete!</div>'
+      +'<div class="sub" style="color:var(--yellow);">⚡ EASY MODE USED</div>'
+      +'<div class="sub">Easy Mode was active during this run.<br>Leaderboard requires a clean Standard Mode game!</div>'
       +'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button>'
       +'<button class="sbtn" onclick="showStart()">MAIN MENU</button>';
     return;
@@ -682,21 +685,32 @@ function showNameEntry(fs,fl,fk){
   ni.addEventListener('keydown',function(e){if(e.key==='Enter')doSave();});
 }
 
-// Pause button
+// Pause
 var pauseBtn=document.getElementById('pauseBtn');
+function showPauseMenu(){
+  ovEl.style.display='flex';
+  ovEl.innerHTML='<h2>PAUSED</h2>'
+    +'<div class="sub">Game is paused.<br>Ready to continue?</div>'
+    +'<button class="gbtn" onclick="resumeGame()">▶ RESUME</button>'
+    +'<button class="sbtn" style="color:var(--red);border-color:var(--red);" onclick="endGameEarly()">✕ END GAME</button>';
+}
+function resumeGame(){
+  paused=false;
+  pauseBtn.textContent='❚❚ PAUSE';
+  ovEl.style.display='none';
+}
+function endGameEarly(){
+  ovEl.style.display='none';
+  triggerGameOver();
+}
 function togglePause(){
   if(gstate!=='playing')return;
   paused=!paused;
-  pauseBtn.textContent=paused?'▶ RESUME':'❚❚ PAUSE';
   if(paused){
-    // Draw pause overlay on canvas
-    ctx.fillStyle='rgba(6,11,20,.7)';
-    ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='var(--cyan)';
-    ctx.font='bold 28px Fredoka One,cursive';
-    ctx.textAlign='center';
-    ctx.textBaseline='middle';
-    ctx.fillText('PAUSED',W/2,H/2);
+    pauseBtn.textContent='▶ RESUME';
+    showPauseMenu();
+  } else {
+    resumeGame();
   }
 }
 pauseBtn.addEventListener('click',togglePause);
