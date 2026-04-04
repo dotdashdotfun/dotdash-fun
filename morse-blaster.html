@@ -302,14 +302,18 @@ async function loadGlobalScores(){
   try{var r=await fetch(WORKER_URL);return await r.json();}
   catch(e){return[];}
 }
-async function saveGlobalScore(name,sc,lv){
+async function saveGlobalScore(name,sc,lv,pin){
   try{
-    var r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,score:sc,level:lv})});
-    return await r.json();
+    var r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name,score:sc,level:lv,pin:pin})});
+    var data=await r.json();
+    if(r.status===403&&data.wrongPin)return{wrongPin:true};
+    return data;
   }catch(e){return await loadGlobalScores();}
 }
 function getLocalName(){try{return localStorage.getItem('morseName')||'';}catch(e){return '';}}
 function setLocalName(n){try{localStorage.setItem('morseName',n);}catch(e){}}
+function getLocalPin(){try{return localStorage.getItem('morsePin')||'';}catch(e){return '';}}
+function setLocalPin(p){try{localStorage.setItem('morsePin',p);}catch(e){}}
 
 // ---- Morse ----
 var MORSE={A:'.-',B:'-...',C:'-.-.',D:'-..',E:'.',F:'..-.',G:'--.',H:'....',I:'..',J:'.---',K:'-.-',L:'.-..',M:'--',N:'-.',O:'---',P:'.--.',Q:'--.-',R:'.-.',S:'...',T:'-',U:'..-',V:'...-',W:'.--',X:'-..-',Y:'-.--',Z:'--..'};
@@ -580,29 +584,36 @@ function showChangeName(){
   ovEl.style.display='flex';
   ovEl.innerHTML='<h2>CHANGE CALLSIGN</h2>'
     +'<div class="sub">Current callsign:<br><b style="color:var(--yellow)">'+(cur?cur.toUpperCase().slice(0,12):'none')+'</b></div>'
-    +'<div class="sub">Enter a new callsign:</div>'
-    +'<input id="nameinput" class="nameinput" maxlength="12" placeholder="NEW CALLSIGN" />'
+    +'<div class="sub">Enter a new callsign and a 4-digit PIN to protect it:</div>'
+    +'<input id="nameinput" class="nameinput" maxlength="12" placeholder="NEW CALLSIGN" style="margin-bottom:6px;" />'
+    +'<input id="pininput" class="nameinput" maxlength="4" placeholder="4-DIGIT PIN" type="password" inputmode="numeric" pattern="[0-9]*" />'
+    +'<div id="chg-msg" class="sub" style="min-height:16px;color:var(--red);"></div>'
     +'<button class="gbtn" id="chgnbtn">SAVE CALLSIGN</button>'
     +'<button class="sbtn" onclick="showScores()">CANCEL</button>';
   var ni=document.getElementById('nameinput');
+  var pi=document.getElementById('pininput');
+  var msg=document.getElementById('chg-msg');
   ni.focus();
   async function doChange(){
     var newName=ni.value.trim();
-    if(!newName)return;
-    var oldName=cur;
-    setLocalName(newName);
-    // Remove old name from global leaderboard
-    if(oldName){
-      try{
-        var scores=await loadGlobalScores();
-        var filtered=scores.filter(function(s){return s.name!==oldName.toUpperCase().slice(0,12);});
-        await fetch(WORKER_URL,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({scores:filtered})});
-      }catch(e){}
+    var pin=pi.value.trim();
+    if(!newName){msg.textContent='Please enter a callsign.';return;}
+    if(!/^\d{4}$/.test(pin)){msg.textContent='PIN must be exactly 4 digits.';return;}
+    msg.style.color='var(--dim)';msg.textContent='Checking...';
+    // Try posting a dummy score of 0 to verify/register the callsign+PIN
+    // We just want to claim the callsign — server will reject if PIN is wrong
+    var r=await fetch(WORKER_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:newName,score:0,level:1,pin:pin})});
+    var data=await r.json();
+    if(r.status===403&&data.wrongPin){
+      msg.style.color='var(--red)';
+      msg.textContent='That callsign is taken by someone else.';
+      ni.focus();return;
     }
+    setLocalName(newName);setLocalPin(pin);
     showScores();
   }
   document.getElementById('chgnbtn').onclick=doChange;
-  ni.addEventListener('keydown',function(e){if(e.key==='Enter')doChange();});
+  pi.addEventListener('keydown',function(e){if(e.key==='Enter')doChange();});
 }
 
 function startGame(){
@@ -630,14 +641,15 @@ async function triggerGameOver(){
   }
 
   var existingName=getLocalName();
+  var existingPin=getLocalPin();
   var globalScores=await loadGlobalScores();
   var existingEntry=existingName?globalScores.find(function(s){return s.name===existingName.toUpperCase().slice(0,12);}):null;
 
   if(!existingName){
-    // First time — always ask for callsign
+    // First time — ask for callsign + new PIN
     showNameEntry(fs,fl,fk);
   } else if(!existingEntry||fs>existingEntry.score){
-    // Personal best
+    // Personal best — save with stored PIN
     ovEl.style.display='flex';
     ovEl.innerHTML='<h2>GAME OVER</h2><div class="bscore">'+fs+'</div>'
       +'<div class="sub" style="color:var(--green)">✦ NEW PERSONAL BEST ✦</div>'
@@ -646,8 +658,17 @@ async function triggerGameOver(){
       +'<button class="sbtn" onclick="startGame()">PLAY AGAIN</button>'
       +'<button class="sbtn" onclick="showStart()">MAIN MENU</button>';
     document.getElementById('savebtn').onclick=async function(){
-      var scores=await saveGlobalScore(existingName,fs,fl);
-      ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'+renderBoard(scores,existingName)
+      var result=await saveGlobalScore(existingName,fs,fl,existingPin);
+      if(result&&result.wrongPin){
+        // PIN mismatch — callsign taken by someone else
+        ovEl.innerHTML='<h2>CALLSIGN TAKEN</h2>'
+          +'<div class="sub" style="color:var(--red);">The callsign <b>'+existingName.toUpperCase().slice(0,12)+'</b> is already registered to someone else.</div>'
+          +'<div class="sub">Choose a different callsign to save your score.</div>'
+          +'<button class="gbtn" onclick="showNameEntry('+fs+','+fl+','+fk+')">CHOOSE NEW CALLSIGN</button>'
+          +'<button class="sbtn" onclick="startGame()">SKIP</button>';
+        return;
+      }
+      ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'+renderBoard(result,existingName)
         +'<div class="sub" style="font-size:9px;margin-top:4px;">Scores shared worldwide 🌍</div>'
         +'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button>'
         +'<button class="sbtn" onclick="showStart()">MAIN MENU</button>';
@@ -666,23 +687,36 @@ async function triggerGameOver(){
 function showNameEntry(fs,fl,fk){
   ovEl.style.display='flex';
   ovEl.innerHTML='<h2>GAME OVER</h2><div class="bscore">'+fs+'</div>'
-    +'<div class="sub">Enter your callsign for the<br><b style="color:var(--cyan)">worldwide leaderboard</b>:</div>'
-    +'<input id="nameinput" class="nameinput" maxlength="12" placeholder="YOUR CALLSIGN" />'
+    +'<div class="sub">Enter your callsign and choose a 4-digit PIN.<br><b style="color:var(--cyan)">Your PIN protects your callsign.</b><br>Write it down — you\'ll need it on new devices!</div>'
+    +'<input id="nameinput" class="nameinput" maxlength="12" placeholder="CALLSIGN" style="margin-bottom:6px;" />'
+    +'<input id="pininput" class="nameinput" maxlength="4" placeholder="4-DIGIT PIN" type="password" inputmode="numeric" pattern="[0-9]*" />'
+    +'<div id="reg-msg" class="sub" style="min-height:16px;color:var(--red);"></div>'
     +'<button class="gbtn" id="subbtn">JOIN LEADERBOARD</button>'
     +'<button class="sbtn" onclick="startGame()">SKIP</button>';
   var ni=document.getElementById('nameinput');
+  var pi=document.getElementById('pininput');
+  var msg=document.getElementById('reg-msg');
   ni.focus();
   async function doSave(){
-    var name=ni.value.trim()||'ANON';
-    setLocalName(name);
-    var scores=await saveGlobalScore(name,fs,fl);
-    ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'+renderBoard(scores,name)
+    var name=ni.value.trim();
+    var pin=pi.value.trim();
+    if(!name){msg.textContent='Please enter a callsign.';return;}
+    if(!/^\d{4}$/.test(pin)){msg.textContent='PIN must be exactly 4 digits.';return;}
+    msg.style.color='var(--dim)';msg.textContent='Saving...';
+    var result=await saveGlobalScore(name,fs,fl,pin);
+    if(result&&result.wrongPin){
+      msg.style.color='var(--red)';
+      msg.textContent='That callsign is taken. Try a different one.';
+      ni.focus();return;
+    }
+    setLocalName(name);setLocalPin(pin);
+    ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'+renderBoard(result,name)
       +'<div class="sub" style="font-size:9px;margin-top:4px;">Scores shared worldwide 🌍</div>'
       +'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button>'
       +'<button class="sbtn" onclick="showStart()">MAIN MENU</button>';
   }
   document.getElementById('subbtn').onclick=doSave;
-  ni.addEventListener('keydown',function(e){if(e.key==='Enter')doSave();});
+  pi.addEventListener('keydown',function(e){if(e.key==='Enter')doSave();});
 }
 
 // Pause
