@@ -97,14 +97,16 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 #tgtline{font-family:'Orbitron',monospace;font-size:9px;color:var(--dim);letter-spacing:2px;}
 #tgtline span{color:var(--yellow);font-size:12px;}
 
-/* Desktop clicker bar (hidden on desktop) */
+/* Desktop: clicker bar always hidden */
 #clickerBar{display:none;flex-shrink:0;}
-#clickerBar.visible{display:flex;}
-#morseBtn{background:var(--panel);border:2px solid var(--cyan);border-radius:50%;width:72px;height:72px;color:var(--cyan);font-size:22px;font-family:'Share Tech Mono',monospace;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px #00cfff30;transition:background .05s,box-shadow .05s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
-#morseBtn.pressed{background:rgba(0,207,255,0.18);box-shadow:0 0 24px #00cfff80;}
+#morseBtn{display:none;}
 
 /* ── MOBILE LAYOUT (≤600px) ── */
 @media(max-width:600px){
+  #clickerBar.visible{display:flex;}
+
+  #morseBtn{background:var(--panel);border:2px solid var(--cyan);border-radius:50%;width:86px;height:86px;color:var(--cyan);font-size:13px;font-family:'Share Tech Mono',monospace;cursor:pointer;touch-action:manipulation;user-select:none;-webkit-user-select:none;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px #00cfff30;transition:background .05s,box-shadow .05s;-webkit-tap-highlight-color:transparent;flex-shrink:0;}
+  #morseBtn.pressed{background:rgba(0,207,255,0.18);box-shadow:0 0 24px #00cfff80;}
   /* Hide desktop side cols */
   #lcol,#rcol{display:none;}
   /* Hide desktop title & ibar — we have our own */
@@ -203,7 +205,7 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
   <canvas id="cv" width="300" height="400"></canvas>
   <button id="pauseBtn">❚❚ PAUSE</button>
   <div id="ibar">
-    <div id="minput">TAP HERE</div>
+    <div id="minput" style="color:var(--dim);font-size:14px;letter-spacing:3px;">USE SPACEBAR</div>
     <div id="tgtline">TARGET: <span id="tgt">—</span></div>
   </div>
   <div id="ov">
@@ -256,7 +258,7 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
   </div>
   <!-- Row 2: Input display + target -->
   <div id="mob-mid">
-    <div id="mob-minput">TAP HERE</div>
+    <div id="mob-minput"></div>
     <div id="mob-target">
       <span id="mob-tgt-lbl">TARGET</span>
       <span id="mob-tgt-letter">—</span>
@@ -366,8 +368,13 @@ function syncMobileStats(){
   if(skElM)skElM.textContent=streak;
 }
 function renderInput(){
-  var txt=curInput?curInput.replace(/\./g,'·').replace(/-/g,'—'):'TAP HERE';
-  minEl.textContent=txt;minEl.classList.remove('err');
+  var txt=curInput?curInput.replace(/\./g,'·').replace(/-/g,'—'):'';
+  if(curInput){
+    minEl.textContent=txt;minEl.style.color='';minEl.style.fontSize='';minEl.style.letterSpacing='';
+  } else {
+    minEl.textContent='USE SPACEBAR';minEl.style.color='var(--dim)';minEl.style.fontSize='14px';minEl.style.letterSpacing='3px';
+  }
+  minEl.classList.remove('err');
   if(mobMinEl){mobMinEl.textContent=txt;mobMinEl.classList.remove('err');}
 }
 
@@ -514,7 +521,7 @@ function gameLoop(){
   if(cur){
     tgtEl.textContent=cur.letter;
     if(mobTgtLetter)mobTgtLetter.textContent=cur.letter;
-    if(mobTgtMorse)mobTgtMorse.textContent=MORSE[cur.letter].replace(/\./g,'·').replace(/-/g,'—');
+    if(mobTgtMorse)mobTgtMorse.textContent=easyMode?MORSE[cur.letter].replace(/\./g,'·').replace(/-/g,'—'):'';
     document.querySelectorAll('.mrow').forEach(function(r){r.classList.remove('hi');});
     var ref=document.getElementById('ref-'+cur.letter);if(ref)ref.classList.add('hi');
   } else {
