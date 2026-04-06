@@ -86,7 +86,7 @@ input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;bac
 /* Leaderboard */
 .live-badge{display:inline-block;background:#ff4466;color:white;font-family:'Orbitron',monospace;font-size:7px;letter-spacing:2px;padding:2px 5px;border-radius:3px;margin-left:4px;animation:blink 1.2s infinite;}
 @keyframes blink{0%,100%{opacity:1;}50%{opacity:.4};}
-.hstbl{display:flex;flex-direction:column;gap:3px;width:240px;}
+.hstbl{display:flex;flex-direction:column;gap:3px;width:240px;max-height:260px;overflow-y:auto;padding-right:4px;}
 .hsrow{display:grid;grid-template-columns:22px 1fr auto auto;gap:0 6px;align-items:center;font-size:11px;padding:4px 7px;border-radius:3px;background:rgba(255,255,255,.02);border:1px solid transparent;}
 .hsrow.hsnew{border-color:var(--yellow);background:rgba(255,215,0,.07);color:var(--yellow);text-shadow:0 0 5px #ffd700;}
 .hsr{color:var(--dim);font-size:9px;}
@@ -296,7 +296,7 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 <script>
 // ---- Global leaderboard via Cloudflare Worker ----
 var WORKER_URL='https://morseblasterleaderboard.dallas-ewer.workers.dev';
-var MAX_HS=10;
+var MAX_HS=25;
 
 async function loadGlobalScores(){
   try{var r=await fetch(WORKER_URL);return await r.json();}
@@ -510,7 +510,7 @@ function drawBlock(letter,x,y,isTarget,isStacked){
   ctx.fillStyle=color;ctx.shadowBlur=isStacked?2:(isTarget?10:5);
   var letterOffsetY=(!isStacked&&easyMode)?-Math.floor(BLOCK*0.18):0;
   ctx.font='bold 22px Orbitron,monospace';ctx.textAlign='center';ctx.textBaseline='middle';
-  ctx.fillText(letter,x,y+letterOffsetY);
+  ctx.fillText(letter==='O'?'Ø':letter,x,y+letterOffsetY);
   if(!isStacked&&easyMode){
     var morse=MORSE[letter].replace(/\./g,'·').replace(/-/g,'—');
     var morseFs=Math.max(10,Math.floor(BLOCK*0.22));
@@ -681,15 +681,17 @@ async function triggerGameOver(){
         ovEl.innerHTML='<h2>CALLSIGN TAKEN</h2>'
           +'<div class="sub" style="color:var(--red);">The callsign <b>'+existingName.toUpperCase().slice(0,12)+'</b> is already registered to someone else.</div>'
           +'<div class="sub">Choose a different callsign to save your score.</div>'
-          +'<button class="gbtn" onclick="showNameEntry('+fs+','+fl+','+fk+')">CHOOSE NEW CALLSIGN</button>'
+          +'<button class="gbtn" id="chooseNameBtn">CHOOSE NEW CALLSIGN</button>'
           +'<button class="sbtn" onclick="startGame()">SKIP</button>';
+        var cnb=document.getElementById('chooseNameBtn');if(cnb)cnb.onclick=function(){showNameEntry(_fs,_fl,_fk);};
         return;
       }
       if(result&&result.profane){
         ovEl.innerHTML='<h2>CALLSIGN NOT ALLOWED</h2>'
           +'<div class="sub" style="color:var(--red);">That callsign contains inappropriate content and cannot be used on this site.</div>'
-          +'<button class="gbtn" onclick="showNameEntry('+fs+','+fl+','+fk+')">CHOOSE NEW CALLSIGN</button>'
+          +'<button class="gbtn" id="chooseNameBtn">CHOOSE NEW CALLSIGN</button>'
           +'<button class="sbtn" onclick="startGame()">SKIP</button>';
+        var cnb=document.getElementById('chooseNameBtn');if(cnb)cnb.onclick=function(){showNameEntry(_fs,_fl,_fk);};
         return;
       }
       ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'+renderBoard(result,existingName)
