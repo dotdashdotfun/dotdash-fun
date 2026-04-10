@@ -238,9 +238,7 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
     <div class="il">tap = dot ·</div>
     <div class="il">hold = dash —</div>
     <div class="il">pause = submit</div>
-    <div class="il" style="margin-top:5px"><b>ENTER</b> = submit</div>
-    <div class="il"><b>ESC</b> = clear</div>
-  </div>
+          </div>
   <div class="box"><div class="lbl">Last Input</div><div id="lastbox">—</div></div>
   <div class="box"><div class="lbl">Streak</div><div class="val" id="sk-val">0</div></div>
   <div class="box">
@@ -422,8 +420,8 @@ function flashRef(l){}
 // Keyboard
 window.addEventListener('keydown',function(e){
   if(e.code==='Space'){e.preventDefault();if(gstate!=='playing'||e.repeat)return;if(keyDownAt===null){keyDownAt=Date.now();clearTimeout(subTimer);}}
-  if(e.code==='Enter'){e.preventDefault();if(gstate!=='playing'){startGame();return;}doSubmit();}
-  if(e.code==='Escape'){e.preventDefault();clearInput();}
+  if(e.code==='Enter'||e.code==='KeyZ'){e.preventDefault();if(gstate!=='playing'){startGame();return;}doSubmit();}
+  
 });
 window.addEventListener('keyup',function(e){
   if(e.code==='Space'){e.preventDefault();if(gstate!=='playing'||keyDownAt===null)return;var held=Date.now()-keyDownAt;keyDownAt=null;appendSym(held<dotMs()?'.':'-');}
@@ -585,7 +583,8 @@ async function showScores(){
     +'<div class="sub" style="font-size:9px;margin-top:4px;">Scores shared worldwide 🌍</div>'
     +nameHtml
     +'<button class="gbtn" onclick="showStart()">BACK</button>'
-    +'<button class="sbtn" onclick="showChangeName()">✎ CHANGE CALLSIGN</button>';
+    +'<button class="sbtn" id="changeCallsignBtn">CHANGE CALLSIGN</button>';
+  var ccb=document.getElementById('changeCallsignBtn');if(ccb)ccb.onclick=showChangeName;
 }
 
 function showChangeName(){
