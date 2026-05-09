@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="format-detection" content="telephone=no,email=no,address=no">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Morse Blaster — dotdash.fun</title>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800;900&family=Share+Tech+Mono&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
@@ -292,9 +293,19 @@ canvas{display:block;border:1px solid var(--border);border-radius:4px;background
 </div>
 
 <script>
+// XSS protection helper
+function escHtml(str){
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
 // ---- Global leaderboard via Cloudflare Worker ----
 var WORKER_URL='https://morseblasterleaderboard.dallas-ewer.workers.dev';
-var MAX_HS=25;
+var MAX_HS=1000;
 
 async function loadGlobalScores(){
   try{var r=await fetch(WORKER_URL);return await r.json();}
@@ -577,21 +588,23 @@ async function showScores(){
   ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2><div class="sub" style="color:var(--dim)">Loading...</div><button class="sbtn" onclick="showStart()">BACK</button>';
   var scores=await loadGlobalScores();
   var name=getLocalName();
-  var nameHtml=name?'<div class="sub" style="font-size:9px;">Playing as <b style="color:var(--yellow)">'+name.toUpperCase().slice(0,12)+'</b></div>':'';
+  var nameHtml=name?'<div class="sub" style="font-size:9px;pointer-events:none;user-select:none;">Playing as <b style="color:var(--yellow)">'+escHtml(name.toUpperCase().slice(0,12))+'</b></div>':'';
   ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'
     +renderBoard(scores,name)
-    +'<div class="sub" style="font-size:9px;margin-top:4px;">Scores shared worldwide 🌍</div>'
+    +'<div class="sub" style="font-size:9px;margin-top:4px;pointer-events:none;user-select:none;">Scores shared worldwide 🌍</div>'
     +nameHtml
     +'<button class="gbtn" onclick="showStart()">BACK</button>'
+    +(name?'<button class="sbtn" id="findMeBtn">◎ FIND ME</button>':'')
     +'<button class="sbtn" id="changeCallsignBtn">CHANGE CALLSIGN</button>';
   var ccb=document.getElementById('changeCallsignBtn');if(ccb)ccb.onclick=showChangeName;
+  var fmb=document.getElementById('findMeBtn');if(fmb)fmb.onclick=function(){scrollToMyScore(name);};
 }
 
 function showChangeName(){
   var cur=getLocalName();
   ovEl.style.display='flex';
   ovEl.innerHTML='<h2>CHANGE CALLSIGN</h2>'
-    +'<div class="sub">Current callsign:<br><b style="color:var(--yellow)">'+(cur?cur.toUpperCase().slice(0,12):'none')+'</b></div>'
+    +'<div class="sub">Current callsign:<br><b style="color:var(--yellow)">'+(cur?escHtml(cur.toUpperCase().slice(0,12)):'none')+'</b></div>'
     +'<div class="sub">Enter a new callsign and a 4-digit PIN to protect it:</div>'
     +'<input id="nameinput" class="nameinput" maxlength="12" placeholder="NEW CALLSIGN" style="margin-bottom:6px;" />'
     +'<input id="pininput" class="nameinput" maxlength="4" placeholder="4-DIGIT PIN" type="password" inputmode="numeric" pattern="[0-9]*" />'
@@ -669,7 +682,7 @@ async function triggerGameOver(){
     ovEl.style.display='flex';
     ovEl.innerHTML='<h2>GAME OVER</h2><div class="bscore">'+fs+'</div>'
       +'<div class="sub" style="color:var(--green)">✦ NEW PERSONAL BEST ✦</div>'
-      +'<div class="sub">Saving as <b style="color:var(--yellow)">'+existingName.toUpperCase().slice(0,12)+'</b></div>'
+      +'<div class="sub">Saving as <b style="color:var(--yellow)">'+escHtml(existingName.toUpperCase().slice(0,12))+'</b></div>'
       +'<button class="gbtn" id="savebtn">SAVE TO LEADERBOARD</button>'
       +'<button class="sbtn" onclick="startGame()">PLAY AGAIN</button>'
       +'<button class="sbtn" onclick="showStart()">MAIN MENU</button>';
@@ -678,7 +691,7 @@ async function triggerGameOver(){
       if(result&&result.wrongPin){
         // PIN mismatch — callsign taken by someone else
         ovEl.innerHTML='<h2>CALLSIGN TAKEN</h2>'
-          +'<div class="sub" style="color:var(--red);">The callsign <b>'+existingName.toUpperCase().slice(0,12)+'</b> is already registered to someone else.</div>'
+          +'<div class="sub" style="color:var(--red);">The callsign <b>'+escHtml(existingName.toUpperCase().slice(0,12))+'</b> is already registered to someone else.</div>'
           +'<div class="sub">Choose a different callsign to save your score.</div>'
           +'<button class="gbtn" id="chooseNameBtn">CHOOSE NEW CALLSIGN</button>'
           +'<button class="sbtn" onclick="startGame()">SKIP</button>';
@@ -694,7 +707,7 @@ async function triggerGameOver(){
         return;
       }
       ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'+renderBoard(result,existingName)
-        +'<div class="sub" style="font-size:9px;margin-top:4px;">Scores shared worldwide 🌍</div>'
+        +'<div class="sub" style="font-size:9px;margin-top:4px;pointer-events:none;user-select:none;">Scores shared worldwide 🌍</div>'
         +'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button>'
         +'<button class="sbtn" onclick="showStart()">MAIN MENU</button>';
     };
@@ -702,7 +715,7 @@ async function triggerGameOver(){
     // Not a personal best
     ovEl.style.display='flex';
     ovEl.innerHTML='<h2>GAME OVER</h2><div class="bscore">'+fs+'</div>'
-      +'<div class="sub">Your best: <b style="color:var(--cyan)">'+(existingEntry?existingEntry.score:'—')+'</b></div>'
+      +'<div class="sub" style="pointer-events:none;">Your best: <b style="color:var(--cyan)">'+(existingEntry?existingEntry.score:'—')+'</b></div>'
       +renderBoard(globalScores,existingName)
       +'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button>'
       +'<button class="sbtn" onclick="showStart()">MAIN MENU</button>';
@@ -742,7 +755,7 @@ function showNameEntry(fs,fl,fk){
       ni.value='';ni.focus();return;
     }
     ovEl.innerHTML='<h2>LEADERBOARD <span class="live-badge">LIVE</span></h2>'+renderBoard(result,name)
-      +'<div class="sub" style="font-size:9px;margin-top:4px;">Scores shared worldwide 🌍</div>'
+      +'<div class="sub" style="font-size:9px;margin-top:4px;pointer-events:none;user-select:none;">Scores shared worldwide 🌍</div>'
       +'<button class="gbtn" onclick="startGame()">PLAY AGAIN</button>'
       +'<button class="sbtn" onclick="showStart()">MAIN MENU</button>';
   }
